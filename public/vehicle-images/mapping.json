@@ -1,0 +1,125 @@
+{
+  "audi-rs4-2007": [
+    "/vehicle-images/audi-rs4-2007-1.jpg",
+    "/vehicle-images/audi-rs4-2007-2.jpg"
+  ],
+  "bmw-m3-2003": [
+    "/vehicle-images/bmw-m3-2003-1.jpg",
+    "/vehicle-images/bmw-m3-2003-2.jpg"
+  ],
+  "chevrolet-corvette-1963": [
+    "/vehicle-images/chevrolet-corvette-1963-1.jpg",
+    "/vehicle-images/chevrolet-corvette-1963-2.jpg",
+    "/vehicle-images/chevrolet-corvette-1963-3.jpg"
+  ],
+  "datsun-240z-1972": [
+    "/vehicle-images/datsun-240z-1972-1.jpg",
+    "/vehicle-images/datsun-240z-1972-2.jpg",
+    "/vehicle-images/datsun-240z-1972-3.jpg"
+  ],
+  "default-car": [
+    "/vehicle-images/default-car-1.jpg",
+    "/vehicle-images/default-car-2.jpg",
+    "/vehicle-images/default-car-3.jpg"
+  ],
+  "ford bronco 1973": [
+    "/vehicle-images/ford bronco 1973-2.jpg"
+  ],
+  "jaguar e-type 1969": [
+    "/vehicle-images/jaguar e-type 1969-1.jpg",
+    "/vehicle-images/jaguar e-type 1969-3.jpg"
+  ],
+  "jaguar-e-type-1969": [
+    "/vehicle-images/jaguar-e-type-1969-2.jpg"
+  ],
+  "mercedes-benz 300sl 1989": [
+    "/vehicle-images/mercedes-benz 300sl 1989-1.jpg",
+    "/vehicle-images/mercedes-benz 300sl 1989-2.jpg",
+    "/vehicle-images/mercedes-benz 300sl 1989-3.jpg"
+  ],
+  "mercedes-benz-300sl-1989": [
+    "/vehicle-images/mercedes-benz-300sl-1989-1.jpg"
+  ],
+  "porsche 911 1995": [
+    "/vehicle-images/porsche-911-1995-2.jpg",
+    "/vehicle-images/porsche-911-1995-3.jpg",
+    "/vehicle-images/porsche 911 1995-1.jpg",
+    "/vehicle-images/porsche 911 1995-2.jpg",
+    "/vehicle-images/porsche 911 1995-3.jpg"
+  ],
+  "porsche-911-1995": [
+    "/vehicle-images/porsche-911-1995-2.jpg",
+    "/vehicle-images/porsche-911-1995-3.jpg",
+    "/vehicle-images/porsche 911 1995-1.jpg",
+    "/vehicle-images/porsche 911 1995-2.jpg",
+    "/vehicle-images/porsche 911 1995-3.jpg"
+  ],
+  "toyota-land-cruiser-1987": [
+    "/vehicle-images/toyota-land-cruiser-1987-2.jpg"
+  ],
+  "volkswagen karmann-ghia 1967": [
+    "/vehicle-images/volkswagen karmann-ghia 1967-3.jpg"
+  ],
+  "volkswagen-karmann-ghia-1967": [
+    "/vehicle-images/volkswagen-karmann-ghia-1967-1.jpg",
+    "/vehicle-images/volkswagen-karmann-ghia-1967-2.jpg"
+  ],
+  "bat-1": [
+    "/vehicle-images/porsche-911-1995-2.jpg",
+    "/vehicle-images/porsche-911-1995-3.jpg",
+    "/vehicle-images/porsche 911 1995-1.jpg",
+    "/vehicle-images/porsche 911 1995-2.jpg",
+    "/vehicle-images/porsche 911 1995-3.jpg"
+  ],
+  "bat-2": [
+    "/vehicle-images/bmw-m3-2003-1.jpg",
+    "/vehicle-images/bmw-m3-2003-2.jpg"
+  ],
+  "bat-3": [
+    "/vehicle-images/toyota-land-cruiser-1987-2.jpg"
+  ],
+  "bat-4": [
+    "/vehicle-images/mercedes-benz 300sl 1989-1.jpg",
+    "/vehicle-images/mercedes-benz 300sl 1989-2.jpg",
+    "/vehicle-images/mercedes-benz 300sl 1989-3.jpg"
+  ],
+  "bat-5": [
+    "/vehicle-images/audi-rs4-2007-1.jpg",
+    "/vehicle-images/audi-rs4-2007-2.jpg"
+  ],
+  "bat-6": [
+    "/vehicle-images/default-car-1.jpg",
+    "/vehicle-images/default-car-2.jpg",
+    "/vehicle-images/default-car-3.jpg"
+  ],
+  "bat-7": [
+    "/vehicle-images/volkswagen-karmann-ghia-1967-1.jpg",
+    "/vehicle-images/volkswagen-karmann-ghia-1967-2.jpg",
+    "/vehicle-images/volkswagen karmann-ghia 1967-3.jpg"
+  ],
+  "bat-8": [
+    "/vehicle-images/chevrolet-corvette-1963-1.jpg",
+    "/vehicle-images/chevrolet-corvette-1963-2.jpg",
+    "/vehicle-images/chevrolet-corvette-1963-3.jpg"
+  ],
+  "bat-9": [
+    "/vehicle-images/jaguar e-type 1969-1.jpg",
+    "/vehicle-images/jaguar-e-type-1969-2.jpg",
+    "/vehicle-images/jaguar e-type 1969-3.jpg"
+  ],
+  "bat-10": [
+    "/vehicle-images/default-car-1.jpg",
+    "/vehicle-images/default-car-2.jpg",
+    "/vehicle-images/default-car-3.jpg"
+  ],
+  "default": [
+    "/vehicle-images/default-car-1.jpg",
+    "/vehicle-images/default-car-2.jpg",
+    "/vehicle-images/default-car-3.jpg"
+  ],
+  "chevrolet corvette 1963": [
+    "/vehicle-images/chevrolet-corvette-1963-1.jpg",
+    "/vehicle-images/chevrolet-corvette-1963-2.jpg",
+    "/vehicle-images/chevrolet-corvette-1963-3.jpg"
+  ]
+}
