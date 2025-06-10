@@ -1,0 +1,37 @@
+{
+  "id": "bmw-m4",
+  "make": "BMW",
+  "model": "M4",
+  "year": 2022,
+  "price": 25534,
+  "mileage": 25193,
+  "exteriorColor": "White",
+  "interiorColor": "Tan",
+  "fuelType": "Hybrid",
+  "transmission": "Automatic",
+  "engine": "2.0L I4",
+  "vin": "DEMON7B6XJJ3",
+  "description": "This 2022 BMW M4 is in excellent condition with low mileage and a clean history.",
+  "features": [
+    "Bluetooth",
+    "Navigation",
+    "Leather Seats",
+    "Sunroof",
+    "Backup Camera",
+    "Heated Seats",
+    "Apple CarPlay",
+    "Android Auto",
+    "Keyless Entry"
+  ],
+  "images": [
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fbmw-m4%2Fbmw-m4_0.jpg?alt=media&token=59075272-83f1-4a9d-9fde-dcb44f650b5c",
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fbmw-m4%2Fbmw-m4_1.jpg?alt=media&token=7bc286e9-252d-4e64-b421-fe457c4fd839",
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fbmw-m4%2Fbmw-m4_2.jpg?alt=media&token=7af3a1e8-7cc4-46a8-8dcc-1828bf0c6f63"
+  ],
+  "imageUrl": "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fbmw-m4%2Fbmw-m4_0.jpg?alt=media&token=59075272-83f1-4a9d-9fde-dcb44f650b5c",
+  "location": "Demo Location",
+  "dealer": "Demo Dealer",
+  "listingDate": "2025-05-31T05:44:06.114Z",
+  "source": "demo",
+  "url": "#"
+}

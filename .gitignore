@@ -45,3 +45,5 @@ out/
 # cache
 .cache/
 .firebase/*.cache
+functions/node_modules/
+next/standalone/node_modules/

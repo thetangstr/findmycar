@@ -1,0 +1,27 @@
+
+    <html>
+      <head>
+        <style>
+          body { margin: 0; padding: 0; }
+          .placeholder {
+            width: 800px;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #27ae60;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="placeholder">
+          Car Placeholder 12<br>
+          <span style="font-size: 16px;">(Local image - no DNS resolution needed)</span>
+        </div>
+      </body>
+    </html>
+  

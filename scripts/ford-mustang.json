@@ -1,0 +1,36 @@
+{
+  "id": "ford-mustang",
+  "make": "Ford",
+  "model": "Mustang",
+  "year": 2022,
+  "price": 59714,
+  "mileage": 5544,
+  "exteriorColor": "Red",
+  "interiorColor": "Black",
+  "fuelType": "Electric",
+  "transmission": "Manual",
+  "engine": "Electric",
+  "vin": "DEMOCRPZEC16",
+  "description": "This 2022 Ford Mustang is in excellent condition with low mileage and a clean history.",
+  "features": [
+    "Bluetooth",
+    "Navigation",
+    "Leather Seats",
+    "Sunroof",
+    "Backup Camera",
+    "Heated Seats",
+    "Apple CarPlay",
+    "Android Auto",
+    "Keyless Entry"
+  ],
+  "images": [
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fford-mustang%2Fford-mustang_0.jpg?alt=media&token=7b311134-bd1c-4acd-961b-6999b6e2aed8",
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fford-mustang%2Fford-mustang_2.jpg?alt=media&token=0d5c1a68-dc4f-4629-aff0-2674faa733f9"
+  ],
+  "imageUrl": "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Fford-mustang%2Fford-mustang_0.jpg?alt=media&token=7b311134-bd1c-4acd-961b-6999b6e2aed8",
+  "location": "Demo Location",
+  "dealer": "Demo Dealer",
+  "listingDate": "2025-05-31T05:43:58.594Z",
+  "source": "demo",
+  "url": "#"
+}

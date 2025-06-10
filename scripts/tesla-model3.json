@@ -1,0 +1,36 @@
+{
+  "id": "tesla-model3",
+  "make": "Tesla",
+  "model": "Model 3",
+  "year": 2023,
+  "price": 67593,
+  "mileage": 13792,
+  "exteriorColor": "Blue",
+  "interiorColor": "Tan",
+  "fuelType": "Diesel",
+  "transmission": "Automatic",
+  "engine": "3.0L V6",
+  "vin": "DEMO8KI9SXFD",
+  "description": "This 2023 Tesla Model 3 is in excellent condition with low mileage and a clean history.",
+  "features": [
+    "Bluetooth",
+    "Navigation",
+    "Leather Seats",
+    "Sunroof",
+    "Backup Camera",
+    "Heated Seats",
+    "Apple CarPlay",
+    "Android Auto",
+    "Keyless Entry"
+  ],
+  "images": [
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Ftesla-model3%2Ftesla-model3_0.jpg?alt=media&token=99f4c859-5259-486c-b494-812468e35494",
+    "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Ftesla-model3%2Ftesla-model3_2.jpg?alt=media&token=896d8e18-9867-4e2f-a499-a73aa7a81e80"
+  ],
+  "imageUrl": "https://firebasestorage.googleapis.com/v0/b/findmycar-347ec.firebasestorage.app/o/vehicles%2Ftesla-model3%2Ftesla-model3_0.jpg?alt=media&token=99f4c859-5259-486c-b494-812468e35494",
+  "location": "Demo Location",
+  "dealer": "Demo Dealer",
+  "listingDate": "2025-05-31T05:44:01.727Z",
+  "source": "demo",
+  "url": "#"
+}
