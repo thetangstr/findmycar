@@ -1,6 +1,155 @@
-import { Vehicle } from '@/types';
+import { Vehicle } from '../types';
 
 export const mockVehicles: Vehicle[] = [
+  // New reliable demo vehicles from specific sources
+  {
+    id: 'ebay-porsche-1',
+    make: 'Porsche',
+    model: '911 Carrera 2 Cabriolet',
+    year: 1990,
+    price: 59000,
+    mileage: 80948,
+    exteriorColor: 'Grand Prix White',
+    interiorColor: 'Navy',
+    fuelType: 'Gasoline',
+    transmission: 'Automatic',
+    engine: '3.6L Naturally Aspirated H6',
+    vin: 'WP0CB2963LS471479',
+    description: 'This classic 1990 Porsche 911 Carrera 2 Cabriolet features a timeless Grand Prix White exterior with Navy blue interior. With 80,948 miles, this 964-generation 911 represents the perfect blend of classic air-cooled Porsche engineering with modern refinements. The car features the desirable 3.6L flat-six engine paired with an automatic transmission, allowing for both spirited driving and comfortable cruising. This well-maintained example comes with service history and presents beautifully with its iconic lines and proportions. The power-operated convertible top functions perfectly, making this an ideal fair-weather sports car for enjoying the Porsche driving experience.',
+    features: [
+      'Power Convertible Top',
+      'Air-Cooled 3.6L Engine',
+      'Power Windows',
+      'Leather Interior',
+      'Air Conditioning',
+      'Power Seats',
+      'Central Locking',
+      'Original Porsche Wheels',
+      'Period-Correct Stereo',
+      'Front Fog Lights'
+    ],
+    images: [
+      // Local image paths for Porsche 911 - clean directory
+      '/images/porsche/s-l1600.webp',
+      '/images/porsche/s-l1600 (1).webp',
+      '/images/porsche/s-l1600 (2).webp',
+      '/images/porsche/s-l1600 (4).webp'
+    ],
+    location: 'San Francisco, CA',
+    dealer: 'Luxury Auto Collection',
+    listingDate: '2023-12-01',
+    source: 'eBay',
+    url: 'https://www.ebay.com/itm/304803308454',
+    bodyStyle: 'Coupe',
+    appreciationData: {
+      purchasePrice: 134900,
+      fiveYearForecast: 122000,
+      tenYearForecast: 145000,
+      trending: 'stable',
+      annualAppreciationRate: 0.8
+    },
+    vehicleHistory: 'Clean title, no accidents, 2 previous owners. All maintenance performed at authorized Porsche dealership.',
+    sellerNotes: 'One of the finest examples of a 992-generation 911 Carrera S available. Exceptionally well maintained and ready for its new owner.'
+  },
+  {
+    id: 'bat-corvette-1',
+    make: 'Chevrolet',
+    model: 'Corvette Z06 Convertible 3LZ Z07',
+    year: 2023,
+    price: 159900,
+    mileage: 1900,
+    exteriorColor: 'Black',
+    interiorColor: 'Black',
+    fuelType: 'Gasoline',
+    transmission: '8-Speed Dual-Clutch',
+    engine: '5.5L LT6 V8',
+    vin: 'Unknown',
+    description: 'This 2023 Chevrolet Corvette Z06 is a black-over-black convertible that was purchased new by the seller and optioned with the Z07 Performance Package, the 3LZ Equipment Group, and the Carbon Aero Package, which added a Carbon Flash-painted carbon-fiber rear wing, ground effects, and front dive planes. Powered by a 5.5-liter LT6 V8 paired with an eight-speed dual-clutch automatic transaxle, the car is further equipped with the Stealth Interior Trim Package, an electronic limited-slip differential, a power-retractable hardtop, LED headlights, 20/21-inch forged aluminum wheels, a Z07 suspension, and Brembo carbon-ceramic brakes as well as heated and ventilated power-adjustable GT2 bucket seats, a Bose sound system, front and rear cameras, and a touchscreen infotainment system.',
+    features: [
+      'Z07 Performance Package',
+      'Carbon Aero Package',
+      '3LZ Equipment Group',
+      'Power-Retractable Hardtop',
+      'Brembo Carbon-Ceramic Brakes',
+      'Electronic Limited-Slip Differential',
+      'Z07 Suspension',
+      'Michelin Tires',
+      'Heated and Ventilated GT2 Bucket Seats',
+      'Bose Sound System'
+    ],
+    images: [
+      // Local image paths for Corvette - clean directory
+      '/images/corvette/2023_chevrolet_corvette-z06-convertible_img_0987-02081-scaled.webp',
+      '/images/corvette/2023_chevrolet_corvette-z06-convertible_img_1027-01992-scaled.webp',
+      '/images/corvette/2023_chevrolet_corvette-z06-convertible_img_1034-02126-scaled.webp',
+      '/images/corvette/2023_chevrolet_corvette-z06-convertible_img_1037-02150-scaled.webp'
+    ],
+    location: 'Los Angeles, CA',
+    dealer: 'Private Seller',
+    listingDate: '2023-12-10',
+    source: 'Bring a Trailer',
+    url: 'https://bringatrailer.com/listing/2023-chevrolet-corvette-z06-convertible-3lz-z07-2/',
+    bodyStyle: 'Convertible',
+    appreciationData: {
+      purchasePrice: 159000,
+      fiveYearForecast: 135000,
+      tenYearForecast: 172000,
+      trending: 'up',
+      annualAppreciationRate: 1.2
+    },
+    vehicleHistory: 'Original owner, no accidents, all maintenance records available.',
+    sellerNotes: 'This Z06 Convertible is one of the most desirable C8 Corvettes produced, featuring the rare combination of Z07 package with carbon fiber wheels.'
+  },
+  {
+    id: 'autotrader-nsx-1',
+    make: 'Acura',
+    model: 'NSX T',
+    year: 1996,
+    price: 89995,
+    mileage: 85278,
+    exteriorColor: 'Red',
+    interiorColor: 'Black',
+    fuelType: 'Gasoline',
+    transmission: '5-Speed Manual',
+    engine: '3.0L 6-Cylinder',
+    vin: 'Unknown',
+    description: 'This 1996 Acura NSX T is a well-preserved example of Honda\'s iconic mid-engine supercar, finished in vibrant red with a removable black roof panel and complemented by black leather interior. Powered by a naturally-aspirated 3.0L VTEC V6 engine paired with a desirable 5-speed manual transmission, this NSX delivers the perfect balance of everyday usability and exotic car performance that made these vehicles legendary. With 85,278 miles, this example has been properly maintained while being regularly enjoyed. The driver-focused cockpit features excellent visibility, supportive leather seats, and an ergonomic layout that was revolutionary for its time. The NSX represents a landmark achievement in automotive engineering, combining Japanese reliability with supercar performance.',
+    features: [
+      'Removable Targa Top',
+      'Mid-Engine Layout',
+      'VTEC V6 Technology',
+      '5-Speed Manual Transmission',
+      'Leather Interior',
+      'Power Windows',
+      'Power Seats',
+      'Air Conditioning',
+      'Original Alloy Wheels',
+      'Limited-Slip Differential'
+    ],
+    images: [
+      // Local image paths for Acura NSX - clean directory
+      '/images/nsx/1e3d981ef9764b2aab725888a49144e7.jpg',
+      '/images/nsx/4261af842509428a8a016b917903c174.jpg',
+      '/images/nsx/623e0ea548cb456297f1e1c935304fdd.jpg',
+      '/images/nsx/f83611de606c4cea9ec138e0d8cd0cfe.jpg'
+    ],
+    location: 'Newport Beach, CA',
+    dealer: 'Luxury Auto Gallery',
+    listingDate: '2023-12-15',
+    source: 'Autotrader',
+    url: 'https://www.autotrader.com/cars-for-sale/vehicledetails.xhtml?listingId=689003479',
+    bodyStyle: 'Coupe',
+    appreciationData: {
+      purchasePrice: 289000,
+      fiveYearForecast: 325000,
+      tenYearForecast: 380000,
+      trending: 'up',
+      annualAppreciationRate: 2.5
+    },
+    vehicleHistory: 'Single owner, no accidents, all dealer service records.',
+    sellerNotes: 'This NSX Type S represents a rare opportunity to own one of the most exclusive and technologically advanced supercars ever produced by Acura.'
+  },
+  
   {
     id: '9',
     make: 'Porsche',

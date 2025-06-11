@@ -13,6 +13,13 @@ if (API_KEY) {
   console.warn('Gemini API key not provided. AI insights will not be available.');
 }
 
+/**
+ * Check if Gemini API is available for use
+ */
+export const isGeminiAvailable = (): boolean => {
+  return Boolean(genAI && API_KEY);
+}
+
 export interface BuyerAnalysis {
   recommendation: 'buy' | 'consider' | 'avoid';
   score: number; // 1-10
