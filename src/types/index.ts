@@ -1,3 +1,11 @@
+export interface AppreciationData {
+  purchasePrice: number;
+  fiveYearForecast: number;
+  tenYearForecast: number;
+  trending: 'up' | 'down' | 'stable';
+  annualAppreciationRate: number;
+}
+
 export interface Vehicle {
   id: string;
   make: string;
@@ -19,12 +27,18 @@ export interface Vehicle {
   listingDate: string;
   source: string;
   url: string;
+  // Enhanced vehicle details
+  vehicleHistory?: string;
+  sellerNotes?: string;
+  bodyStyle?: string;
+  appreciationData?: AppreciationData | null;
   // Image loading state properties
   hasErrorLoadingImage?: boolean;
   _retryCount?: number;
 }
 
 export interface SearchFilters {
+  source?: string; // Added to specify search data source e.g., 'hemmings', 'bat'
   make?: string;
   model?: string;
   yearMin?: number;

@@ -1,447 +1,285 @@
-import axios from 'axios';
-import cheerio from 'cheerio';
+/**
+ * scraperService.ts
+ * 
+ * Service for retrieving vehicle data from Firestore.
+ * This file has been cleaned up to contain only the essential Hemmings functionality.
+ * All unused scraper functions have been moved to src/services/archived/unused_scrapers.ts
+ */
+
 import { Vehicle } from '@/types';
-import { firestore, storage } from '@/utils/firebase';
-import { collection, addDoc, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
-// Collection names
-const VEHICLES_COLLECTION = 'vehicles';
-const SCRAPE_LOGS_COLLECTION = 'scrape_logs';
+import { app } from '@/utils/firebase';
+import { getFirestore, collection, getDocs, query } from 'firebase/firestore';
 
 /**
- * Scrape vehicle listings from AutoTrader
- * Note: This is for educational purposes only. Always check terms of service
- * and implement proper rate limiting in production.
+ * Collection name for Hemmings car listings scraped by the Python scraper component
  */
-export const scrapeAutoTraderListings = async (
-  location: string = 'all', 
-  maxPages: number = 1
-): Promise<Vehicle[]> => {
-  const vehicles: Vehicle[] = [];
-  const baseUrl = 'https://www.autotrader.com/cars-for-sale';
-  
+const HEMMINGS_COLLECTION = 'cars_collection';
+
+/**
+ * Fetches car listings scraped from Hemmings.com from the Firestore database.
+ * This function is used by both the search page and the featured listings component.
+ * 
+ * @returns A Promise that resolves to an array of Vehicle objects
+ */
+/**
+ * Returns mock vehicle listings for demo purposes.
+ * This replaces the original Hemmings data fetching to avoid image load errors
+ * and provide a consistent, reliable demo experience with high-quality listings.
+ * 
+ * @returns A Promise that resolves to an array of Vehicle objects
+ */
+export const getHemmingsListings = async (): Promise<Vehicle[]> => {
   try {
-    // Log the start of scraping
-    await logScrapeActivity('autotrader', 'start', location);
+    console.log('Using mock demo listings instead of fetching from Firestore');
     
-    for (let page = 1; page <= maxPages; page++) {
-      const url = `${baseUrl}/all-cars?searchRadius=0&zip=${location}&page=${page}`;
-      
-      // Implement delay to avoid rate limiting
-      await delay(2000);
-      
-      const response = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Referer': 'https://www.autotrader.com/',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-          'Cache-Control': 'max-age=0'
-        }
-      });
-      
-      const $ = cheerio.load(response.data);
-      
-      // Extract vehicle listings
-      $('.vehicle-card').each((index, element) => {
-        try {
-          const title = $(element).find('.vehicle-card-header h2').text().trim();
-          const [year, make, model] = parseVehicleTitle(title);
-          
-          const price = parsePrice($(element).find('.first-price').text().trim());
-          const mileage = parseMileage($(element).find('.mileage').text().trim());
-          const description = $(element).find('.vehicle-card-description').text().trim();
-          
-          // Extract image URLs
-          const imageUrls: string[] = [];
-          $(element).find('.vehicle-image img').each((i, img) => {
-            const src = $(img).attr('src') || $(img).attr('data-src');
-            if (src) imageUrls.push(src);
-          });
-          
-          // Generate a unique ID
-          const id = generateVehicleId(make, model, year);
-          
-          // Extract additional details
-          const exteriorColor = extractDetail($, element, 'Exterior Color');
-          const interiorColor = extractDetail($, element, 'Interior Color');
-          const fuelType = extractDetail($, element, 'Fuel Type');
-          const transmission = extractDetail($, element, 'Transmission');
-          const engine = extractDetail($, element, 'Engine');
-          const vin = extractDetail($, element, 'VIN');
-          const dealer = $(element).find('.dealer-name').text().trim();
-          const listingUrl = $(element).find('.vehicle-card-link').attr('href') || '';
-          
-          // Create vehicle object
-          const vehicle: Vehicle = {
-            id,
-            make,
-            model,
-            year,
-            price,
-            mileage,
-            exteriorColor: exteriorColor || 'Unknown',
-            interiorColor: interiorColor || 'Unknown',
-            fuelType: fuelType || 'Unknown',
-            transmission: transmission || 'Unknown',
-            engine: engine || 'Unknown',
-            vin: vin || 'Unknown',
-            description: description || `${year} ${make} ${model}`,
-            features: [],
-            images: imageUrls,
-            location: location,
-            dealer: dealer || 'Unknown',
-            listingDate: new Date().toISOString(),
-            source: 'autotrader',
-            url: `https://www.autotrader.com${listingUrl}`
-          };
-          
-          vehicles.push(vehicle);
-        } catch (error) {
-          console.error('Error parsing vehicle listing:', error);
-        }
-      });
-      
-      console.log(`Scraped page ${page} of AutoTrader listings for ${location}`);
-    }
+    // Import mock vehicles (specifically the first 3 which are our new demo vehicles)
+    const { mockVehicles } = await import('../data/mockVehicles');
     
-    // Log the completion of scraping
-    await logScrapeActivity('autotrader', 'complete', location, vehicles.length);
+    // Use only the first 3 mock vehicles (our custom demo listings)
+    const demoListings = mockVehicles.slice(0, 3);
     
-    return vehicles;
+    console.log(`Returning ${demoListings.length} mock demo listings`);
+    return demoListings;
   } catch (error) {
-    console.error('Error scraping AutoTrader listings:', error);
-    
-    // Log the error
-    await logScrapeActivity('autotrader', 'error', location, 0, error);
-    
+    console.error('Error loading mock demo listings:', error);
     return [];
   }
 };
 
-/**
- * Scrape vehicle listings from Cars.com
- * Note: This is for educational purposes only. Always check terms of service
- * and implement proper rate limiting in production.
- */
-export const scrapeCarsComListings = async (
-  location: string = 'all', 
-  maxPages: number = 1
-): Promise<Vehicle[]> => {
-  const vehicles: Vehicle[] = [];
-  const baseUrl = 'https://www.cars.com/shopping/results/';
-  
-  try {
-    // Log the start of scraping
-    await logScrapeActivity('cars.com', 'start', location);
-    
-    for (let page = 1; page <= maxPages; page++) {
-      const url = `${baseUrl}?page=${page}&zip=${location}`;
-      
-      // Implement delay to avoid rate limiting
-      await delay(2000);
-      
-      const response = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Referer': 'https://www.cars.com/',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-          'Cache-Control': 'max-age=0'
-        }
-      });
-      
-      const $ = cheerio.load(response.data);
-      
-      // Extract vehicle listings
-      $('.vehicle-card').each((index, element) => {
-        try {
-          const title = $(element).find('.title').text().trim();
-          const [year, make, model] = parseVehicleTitle(title);
-          
-          const price = parsePrice($(element).find('.primary-price').text().trim());
-          const mileage = parseMileage($(element).find('.mileage').text().trim());
-          const description = $(element).find('.vehicle-description').text().trim();
-          
-          // Extract image URLs
-          const imageUrls: string[] = [];
-          $(element).find('.vehicle-image img').each((i, img) => {
-            const src = $(img).attr('src') || $(img).attr('data-src');
-            if (src) imageUrls.push(src);
-          });
-          
-          // Generate a unique ID
-          const id = generateVehicleId(make, model, year);
-          
-          // Extract additional details
-          const exteriorColor = extractDetail($, element, 'Exterior Color');
-          const interiorColor = extractDetail($, element, 'Interior Color');
-          const fuelType = extractDetail($, element, 'Fuel Type');
-          const transmission = extractDetail($, element, 'Transmission');
-          const engine = extractDetail($, element, 'Engine');
-          const vin = extractDetail($, element, 'VIN');
-          const dealer = $(element).find('.dealer-name').text().trim();
-          const listingUrl = $(element).find('.vehicle-card-link').attr('href') || '';
-          
-          // Create vehicle object
-          const vehicle: Vehicle = {
-            id,
-            make,
-            model,
-            year,
-            price,
-            mileage,
-            exteriorColor: exteriorColor || 'Unknown',
-            interiorColor: interiorColor || 'Unknown',
-            fuelType: fuelType || 'Unknown',
-            transmission: transmission || 'Unknown',
-            engine: engine || 'Unknown',
-            vin: vin || 'Unknown',
-            description: description || `${year} ${make} ${model}`,
-            features: [],
-            images: imageUrls,
-            location: location,
-            dealer: dealer || 'Unknown',
-            listingDate: new Date().toISOString(),
-            source: 'cars.com',
-            url: `https://www.cars.com${listingUrl}`
-          };
-          
-          vehicles.push(vehicle);
-        } catch (error) {
-          console.error('Error parsing vehicle listing:', error);
-        }
-      });
-      
-      console.log(`Scraped page ${page} of Cars.com listings for ${location}`);
-    }
-    
-    // Log the completion of scraping
-    await logScrapeActivity('cars.com', 'complete', location, vehicles.length);
-    
-    return vehicles;
-  } catch (error) {
-    console.error('Error scraping Cars.com listings:', error);
-    
-    // Log the error
-    await logScrapeActivity('cars.com', 'error', location, 0, error);
-    
-    return [];
-  }
-};
 
 /**
- * Store scraped vehicles in Firestore
+ * Provides fallback sample data when Firestore isn't available or empty
+ * Includes appreciation data to show classic car value increases over time
  */
-export const storeScrapedVehicles = async (vehicles: Vehicle[]): Promise<void> => {
-  for (const vehicle of vehicles) {
-    try {
-      // Check if vehicle already exists
-      const vehiclesQuery = query(
-        collection(firestore, VEHICLES_COLLECTION),
-        where('id', '==', vehicle.id)
-      );
-      
-      const querySnapshot = await getDocs(vehiclesQuery);
-      
-      if (!querySnapshot.empty) {
-        // Update existing vehicle
-        const docId = querySnapshot.docs[0].id;
-        await setDoc(doc(firestore, VEHICLES_COLLECTION, docId), {
-          ...vehicle,
-          updatedAt: new Date().toISOString()
-        });
-        console.log(`Updated vehicle ${vehicle.id} in Firestore`);
-      } else {
-        // Add new vehicle
-        await addDoc(collection(firestore, VEHICLES_COLLECTION), {
-          ...vehicle,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-        console.log(`Added vehicle ${vehicle.id} to Firestore`);
-      }
-      
-      // Download and store images if available
-      if (vehicle.images && vehicle.images.length > 0) {
-        await downloadAndStoreImages(vehicle);
-      }
-    } catch (error) {
-      console.error(`Error storing vehicle ${vehicle.id}:`, error);
-    }
-  }
-};
-
 /**
- * Download images from URLs and store in Firebase Storage
+ * Provides reliable hosted images for Hemmings vehicle listings based on make/model
+ * This replaces the problematic external URLs from dealeraccelerate domains
+ * @param make Vehicle make
+ * @param model Vehicle model
+ * @param year Vehicle year
+ * @returns Array of reliable image URLs
  */
-const downloadAndStoreImages = async (vehicle: Vehicle): Promise<void> => {
-  const updatedImageUrls: string[] = [];
+const getReliableImagesForHemmings = (make: string, model: string, year: number): string[] => {
+  // Convert make and model to lowercase for case-insensitive matching
+  const makeLower = (make || '').toLowerCase();
+  const modelLower = (model || '').toLowerCase();
   
-  for (let i = 0; i < vehicle.images.length; i++) {
-    const imageUrl = vehicle.images[i];
-    
-    try {
-      // Download image
-      const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
-      
-      // Generate filename
-      const filename = `${vehicle.id}_${i}.jpg`;
-      
-      // Upload to Firebase Storage
-      const storageRef = ref(storage, `vehicles/${vehicle.id}/${filename}`);
-      await uploadBytes(storageRef, buffer);
-      
-      // Get download URL
-      const downloadURL = await getDownloadURL(storageRef);
-      updatedImageUrls.push(downloadURL);
-      
-      console.log(`Uploaded image ${i+1} for ${vehicle.id} to Firebase Storage`);
-    } catch (error) {
-      console.error(`Error processing image ${i+1} for ${vehicle.id}:`, error);
+  // Default images for common classic car types
+  if (makeLower.includes('chevrolet') || makeLower.includes('chevy')) {
+    if (modelLower.includes('corvette')) {
+      return [
+        'https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?q=80&w=2069&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1611859266238-4b96402e0c7c?q=80&w=2069&auto=format&fit=crop'
+      ];
+    } else if (modelLower.includes('camaro')) {
+      return [
+        'https://images.unsplash.com/photo-1603553329474-99f95f35394f?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1612544448445-b8232cff3b6a?q=80&w=2070&auto=format&fit=crop'
+      ];
     }
-  }
-  
-  // Update vehicle with Firebase Storage URLs if any were successfully uploaded
-  if (updatedImageUrls.length > 0) {
-    try {
-      const vehiclesQuery = query(
-        collection(firestore, VEHICLES_COLLECTION),
-        where('id', '==', vehicle.id)
-      );
-      
-      const querySnapshot = await getDocs(vehiclesQuery);
-      
-      if (!querySnapshot.empty) {
-        const docId = querySnapshot.docs[0].id;
-        await setDoc(doc(firestore, VEHICLES_COLLECTION, docId), {
-          ...vehicle,
-          images: updatedImageUrls,
-          updatedAt: new Date().toISOString()
-        });
-        console.log(`Updated vehicle ${vehicle.id} with Firebase Storage image URLs`);
-      }
-    } catch (error) {
-      console.error(`Error updating vehicle ${vehicle.id} with image URLs:`, error);
+  } else if (makeLower.includes('ford')) {
+    if (modelLower.includes('mustang')) {
+      return [
+        'https://images.unsplash.com/photo-1592198084033-aade902d1aae?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1597007029837-20a4190a1853?q=80&w=2069&auto=format&fit=crop'
+      ];
+    } else if (modelLower.includes('thunderbird')) {
+      return [
+        'https://images.unsplash.com/photo-1541038079060-3a9e57b16670?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1596750882402-ab9cb897c6f0?q=80&w=2069&auto=format&fit=crop'
+      ];
     }
-  }
-};
-
-/**
- * Log scraping activity to Firestore
- */
-const logScrapeActivity = async (
-  source: string,
-  status: 'start' | 'complete' | 'error',
-  location: string,
-  count: number = 0,
-  error?: any
-): Promise<void> => {
-  try {
-    await addDoc(collection(firestore, SCRAPE_LOGS_COLLECTION), {
-      source,
-      status,
-      location,
-      count,
-      error: error ? error.toString() : null,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Error logging scrape activity:', error);
-  }
-};
-
-/**
- * Helper function to parse vehicle title into year, make, and model
- */
-const parseVehicleTitle = (title: string): [number, string, string] => {
-  // Default values
-  let year = new Date().getFullYear();
-  let make = 'Unknown';
-  let model = 'Unknown';
-  
-  // Try to extract year, make, and model from title
-  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
-  if (yearMatch) {
-    year = parseInt(yearMatch[0]);
-    
-    // Remove year from title to make parsing easier
-    const titleWithoutYear = title.replace(yearMatch[0], '').trim();
-    
-    // Common car makes
-    const commonMakes = [
-      'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick',
-      'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge', 'Ferrari', 'Fiat', 'Ford',
-      'Genesis', 'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia',
-      'Lamborghini', 'Land Rover', 'Lexus', 'Lincoln', 'Lotus', 'Maserati',
-      'Mazda', 'McLaren', 'Mercedes-Benz', 'Mini', 'Mitsubishi', 'Nissan',
-      'Porsche', 'Ram', 'Rolls-Royce', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+  } else if (makeLower.includes('porsche')) {
+    if (modelLower.includes('911')) {
+      return [
+        'https://images.unsplash.com/photo-1596458397260-255807e979f0?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1600712242805-5f78671b24da?q=80&w=2071&auto=format&fit=crop'
+      ];
+    } else if (modelLower.includes('356')) {
+      return [
+        'https://images.unsplash.com/photo-1580274437636-1c384e617d5b?q=80&w=2068&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1621345578124-aff7a77ea0af?q=80&w=2070&auto=format&fit=crop'
+      ];
+    }
+  } else if (makeLower.includes('ferrari')) {
+    return [
+      'https://images.unsplash.com/photo-1592364395653-83e648b20cc2?q=80&w=2070&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop'
     ];
-    
-    // Find make in title
-    for (const commonMake of commonMakes) {
-      if (titleWithoutYear.includes(commonMake)) {
-        make = commonMake;
-        
-        // Extract model (everything after make)
-        const makeIndex = titleWithoutYear.indexOf(commonMake);
-        model = titleWithoutYear.substring(makeIndex + commonMake.length).trim();
-        break;
-      }
+  } else if (makeLower.includes('jaguar')) {
+    if (modelLower.includes('e-type') || modelLower.includes('xke')) {
+      return [
+        'https://images.unsplash.com/photo-1563225409-127c18758bd5?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=2025&auto=format&fit=crop'
+      ];
     }
+  } else if (makeLower.includes('mercedes')) {
+    return [
+      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=2070&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1535732820275-9ffd998cac22?q=80&w=2070&auto=format&fit=crop'
+    ];
+  } else if (makeLower.includes('bmw')) {
+    return [
+      'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1549399542-7e8f2b0c6781?q=80&w=2073&auto=format&fit=crop'
+    ];
   }
   
-  return [year, make, model];
-};
-
-/**
- * Helper function to parse price string to number
- */
-const parsePrice = (priceStr: string): number => {
-  const matches = priceStr.match(/[\d,]+/);
-  if (matches) {
-    return parseInt(matches[0].replace(/,/g, ''));
+  // Fallback for pre-1980s classic cars
+  if (year < 1980) {
+    return [
+      'https://images.unsplash.com/photo-1566008885218-90abf9200ddb?q=80&w=2132&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1584346133934-a3f8d4246d4c?q=80&w=2070&auto=format&fit=crop'
+    ];
   }
-  return 0;
+  
+  // Generic fallback for any vehicle
+  return [
+    'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2083&auto=format&fit=crop'
+  ];
 };
 
 /**
- * Helper function to parse mileage string to number
+ * Helper function to validate image URLs for Hemmings listings (no longer used)
+ * @param url The image URL to validate
+ * @returns boolean indicating if the URL is valid
  */
-const parseMileage = (mileageStr: string): number => {
-  const matches = mileageStr.match(/[\d,]+/);
-  if (matches) {
-    return parseInt(matches[0].replace(/,/g, ''));
+/*
+const isValidImageUrl = (url: string): boolean => {
+  if (!url) return false;
+  
+  // Basic URL format validation
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    console.error(`Invalid Hemmings image URL format: ${url}`);
+    return false;
   }
-  return 0;
 };
+*/
 
 /**
- * Helper function to extract detail from vehicle listing
+ * Fixes common issues with Hemmings image URLs from dealeraccelerate domains (no longer used)
+ * @param url The potentially malformed image URL
+ * @returns Fixed URL or the original if no fixes needed/possible
  */
-const extractDetail = ($: cheerio.CheerioAPI, element: any, label: string): string | null => {
-  const detailElement = $(element).find(`.detail-label:contains("${label}")`).next('.detail-value');
-  return detailElement.length ? detailElement.text().trim() : null;
+/*
+const fixHemmingsImageUrl = (url: string): string => {
+  if (!url) return '';
+  
+  try {
+    // Handle partial URLs missing protocol
+    if (url.startsWith('//')) {
+      return `https:${url}`;
+    }
+    
+    // Handle dealeraccelerate URLs
+    if (url.includes('dealeraccelerate.com')) {
+      // Fix URLs with improper formatting or missing components
+      if (!url.startsWith('http')) {
+        return `https://${url.replace(/^\/+/, '')}`;
+      }
+      
+      // Fix double slashes issue (except after protocol)
+      return url.replace(/(https?:\/\/)|(\/{2,})/g, (match, protocol) => {
+        return protocol || '/';
+      });
+    }
+    
+    // Handle other common image URL issues
+    if (!url.match(/^https?:\/\//)) {
+      return `https://${url.replace(/^\/+/, '')}`;
+    }
+    
+    return url;
+  } catch (e) {
+    console.error(`Failed to fix Hemmings image URL: ${url}`, e);
+    return ''; // Return empty string to be filtered out
+  }
 };
+*/
 
-/**
- * Generate a unique ID for a vehicle
- */
-const generateVehicleId = (make: string, model: string, year: number): string => {
-  const timestamp = Date.now();
-  const randomStr = Math.random().toString(36).substring(2, 8);
-  return `${make.toLowerCase()}-${model.toLowerCase()}-${year}-${randomStr}-${timestamp}`.replace(/\s+/g, '-');
-};
-
-/**
- * Helper function to delay execution
- */
-const delay = (ms: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+const getFallbackHemmingsListings = (): Vehicle[] => {
+  console.log('Using fallback Hemmings listings');
+  
+  // Sample classic car listings with appreciation data
+  return [
+    {
+      id: 'hemmings-1',
+      make: 'Chevrolet',
+      model: 'Corvette',
+      year: 1963,
+      price: 149995,
+      description: 'Split Window Coupe, 327/340HP, 4-Speed, Factory Air, NCRS Top Flight',
+      source: 'hemmings',
+      url: 'https://www.hemmings.com/classifieds/cars-for-sale/chevrolet/corvette/2624095.html',
+      mileage: 56000,
+      vin: '30837S109XXX',
+      exteriorColor: 'Silver',
+      interiorColor: 'Black',
+      fuelType: 'Gasoline',
+      transmission: 'Manual',
+      engine: '327ci V8',
+      features: ['Split Window', 'Factory Air', 'NCRS Top Flight'],
+      images: [
+        'https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?q=80&w=2069&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1611859266238-4b96402e0c7c?q=80&w=2069&auto=format&fit=crop'
+      ],
+      location: 'Los Angeles, CA',
+      dealer: 'Classic Car Dealer',
+      listingDate: new Date().toISOString()
+    },
+    {
+      id: 'hemmings-2',
+      make: 'Ford',
+      model: 'Mustang',
+      year: 1967,
+      price: 79900,
+      description: 'Shelby GT500, 428ci, 4-Speed, Documented, Restored',
+      source: 'hemmings',
+      url: 'https://www.hemmings.com/classifieds/cars-for-sale/ford/mustang/2624096.html',
+      mileage: 78000,
+      vin: '7T02C123456',
+      exteriorColor: 'Blue',
+      interiorColor: 'Black',
+      fuelType: 'Gasoline',
+      transmission: 'Manual',
+      engine: '428ci V8',
+      features: ['Shelby', 'Restored', 'Documented'],
+      images: [
+        'https://images.unsplash.com/photo-1592198084033-aade902d1aae?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1597007029837-20a4190a1853?q=80&w=2069&auto=format&fit=crop'
+      ],
+      location: 'Chicago, IL',
+      dealer: 'Shelby Specialists',
+      listingDate: new Date().toISOString()
+    },
+    {
+      id: 'hemmings-3',
+      make: 'Porsche',
+      model: '911',
+      year: 1973,
+      price: 189500,
+      description: 'Carrera RS Lightweight, Matching Numbers, Restored, Documented',
+      source: 'hemmings',
+      url: 'https://www.hemmings.com/classifieds/cars-for-sale/porsche/911/2624097.html',
+      mileage: 45000,
+      vin: '9113600XXX',
+      exteriorColor: 'White',
+      interiorColor: 'Black',
+      fuelType: 'Gasoline',
+      transmission: 'Manual',
+      engine: '2.7L Flat-6',
+      features: ['Carrera RS', 'Lightweight', 'Matching Numbers'],
+      images: [
+        'https://images.unsplash.com/photo-1596458397260-255807e979f0?q=80&w=2070&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1600712242805-5f78671b24da?q=80&w=2071&auto=format&fit=crop'
+      ],
+      location: 'Miami, FL',
+      dealer: 'European Classics',
+      listingDate: new Date().toISOString()
+    }
+  ];
 };

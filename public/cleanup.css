@@ -1,0 +1,32 @@
+/* CSS to hide unwanted bottom banner elements with garbled characters */
+body > div:last-child:not(.min-h-screen) {
+  display: none !important;
+}
+
+/* Hide specific text content that might be garbled */
+*:not(script):not(style):contains("FireFoxy"),
+*:not(script):not(style):contains("Patriot"),
+*:not(script):not(style)[class^="fire"],
+*:not(script):not(style)[class*="foxy"],
+*:not(script):not(style)[class^="patr"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Fix for potential font rendering issues at page bottom */
+html::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* Ensure nothing appears after our footer */
+footer {
+  margin-bottom: 0 !important;
+}
+body::after {
+  content: "";
+  display: block;
+  height: 0;
+}

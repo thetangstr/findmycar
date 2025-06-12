@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined, // Static site generation only for production
-  distDir: 'out',
+  output: 'export', // Always use static export mode for consistency
+  trailingSlash: true, // This helps with static export paths
+
   images: {
     unoptimized: true,
     domains: [
@@ -25,7 +26,10 @@ const nextConfig = {
       'dmi.images.fisheye.tv',
       'i.ebayimg.com',
       'img.autobytel.com',
-      'auto.dev'
+      'auto.dev',
+      'cdn.dealeraccelerate.com',
+      'photo-service.dealeraccelerate.com',
+      'images.dealer.com'
     ],
     remotePatterns: [
       {

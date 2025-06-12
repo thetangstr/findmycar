@@ -136,7 +136,7 @@ export const mockVehicles: Vehicle[] = [
     location: 'Newport Beach, CA',
     dealer: 'Luxury Auto Gallery',
     listingDate: '2023-12-15',
-    source: 'Autotrader',
+    source: 'FB Marketplace',
     url: 'https://www.autotrader.com/cars-for-sale/vehicledetails.xhtml?listingId=689003479',
     bodyStyle: 'Coupe',
     appreciationData: {

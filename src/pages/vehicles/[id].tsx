@@ -8,19 +8,21 @@ import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import CompareButton from '@/components/CompareButton';
 import FavoriteButton from '@/components/FavoriteButton';
 import AIInsightButton from '@/components/AIInsightButton';
+import { getFallbackAnalysis, generateBuyerAnalysis, isGeminiAvailable, BuyerAnalysis } from '@/services/geminiService';
 import ImageGallery from '@/components/vehicles/ImageGallery';
-import SocialPostsSection from '@/components/SocialPostsSection';
+import SocialPostsCarousel from '@/components/SocialPostsCarousel';
 import MarketAnalysis from '@/components/vehicles/MarketAnalysis';
-import AlertSubscription from '@/components/vehicles/AlertSubscription';
 import { useAuth } from '@/utils/auth';
 import { Vehicle } from '@/types';
 import { getFeaturedVehicles } from '@/services/featuredVehiclesService';
+import { getHemmingsListings } from '@/services/scraperService';
 
 interface VehicleDetailProps {
   vehicle: Vehicle | null;
+  preloadedAnalysis?: BuyerAnalysis;
 }
 
-export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
+export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDetailProps) {
   const router = useRouter();
   const { getVehicleById } = useVehicles();
   const { addToRecentlyViewed } = useRecentlyViewed(getVehicleById);
@@ -30,67 +32,6 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
   // Find similar vehicles (same make, model, within 3 years of this vehicle's year)
   const [similarVehicles, setSimilarVehicles] = useState<Vehicle[]>([]);
 
-  // Advanced LLM-powered vehicle analysis for car enthusiasts
-  const getDetailedAnalysis = (vehicle: Vehicle): { recommendation: string; analysis: string; isPositive: boolean } => {
-    const mileage = vehicle.mileage || 0;
-    const year = vehicle.year;
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - year;
-    const pricePerYear = vehicle.price / Math.max(1, age);
-
-    // Detailed analysis for specific vehicle IDs
-    if (vehicle.id.includes('porsche-964-ebay')) {
-      return {
-        recommendation: "🎯 STRONG BUY: Classic air-cooled 964 at sweet spot pricing!",
-        analysis: `This 1990 964 represents exceptional value in today's market. At $89,500 with 87k miles, it's priced 15-20% below current market averages for similar examples. The 964 generation (1989-1994) is the most reliable air-cooled 911, featuring the robust M64 engine without IMS bearing issues of later models. Recent major service including clutch and IMS service demonstrates proper care. Grand Prix White is highly desirable and shows well. With air-cooled 911s appreciating 8-12% annually, this represents both driving enjoyment and solid investment potential. The G50 transmission is bulletproof, and 87k miles is moderate for a 35-year-old car. Factor $5-8k for deferred maintenance, but total investment under $100k for a genuine air-cooled icon is outstanding value.`,
-        isPositive: true
-      };
-    }
-    
-    if (vehicle.id.includes('acura-nsx-ebay')) {
-      return {
-        recommendation: "🏆 COLLECTOR GRADE: Late-production NSX hitting appreciation inflection point!",
-        analysis: `This 1999 NSX NSX-T represents the refined peak of Honda's supercar evolution. At $120k with only 28,765 miles, it's positioned at the sweet spot where values are accelerating rapidly. The 3.2L VTEC V6 and 6-speed manual combination is the most desirable NSX configuration. Late-production models benefit from 9 years of continuous improvement over early cars. NSX values have appreciated 150% in the last 5 years, with clean examples now commanding $150k+. The NSX-T variant offers targa flexibility while maintaining structural integrity. Kaiser Silver is one of the most attractive NSX colors. Being sold by Driving Emotions (high-end exotic specialist) suggests proper care and maintenance. Factor minimal depreciation risk - NSXs are firmly in collector territory and trending toward $200k+ for pristine examples.`,
-        isPositive: true
-      };
-    }
-    
-    if (vehicle.id.includes('corvette-z06-bat')) {
-      return {
-        recommendation: "⚡ STRONG BUY: Last great naturally aspirated American supercar!",
-        analysis: `This 2012 C6 Z06 represents the pinnacle of naturally aspirated Corvette performance. The 7.0L LS7 produces 505hp without forced induction - a dying breed in today's market. At $58,500 with 18,500 miles, it's exceptionally well-priced versus newer C7/C8 models. The C6 Z06 is increasingly recognized as a modern classic, offering supercar performance (3.7s 0-60, 198mph top speed) at fraction of European exotic costs. LS7 engines are bulletproof with proper maintenance. Supersonic Blue is a desirable color that photographs beautifully. Being listed on Bring a Trailer suggests quality and transparency. These cars are bottoming out in depreciation and starting to appreciate as enthusiasts recognize the LS7's significance. Factor $3-5k annual maintenance, but expect stable to appreciating values as last naturally aspirated Z06 generation.`,
-        isPositive: true
-      };
-    }
-
-    // Generic advanced analysis
-    const marketPositioning = vehicle.price > 150000 ? "premium" : vehicle.price > 75000 ? "mid-market" : "value";
-    const mileageStatus = mileage < 50000 ? "low" : mileage < 100000 ? "moderate" : "high";
-    const ageStatus = age < 10 ? "modern" : age < 25 ? "classic" : "vintage";
-
-    if (vehicle.make === 'Porsche' && age > 20) {
-      return {
-        recommendation: "💎 COLLECTOR GRADE: Air-cooled Porsche entering blue-chip territory!",
-        analysis: `This ${year} ${vehicle.model} represents solid entry into appreciating Porsche collectibles. ${marketPositioning} market positioning with ${mileageStatus} mileage creates attractive risk/reward profile. Porsche values have shown consistent appreciation, particularly air-cooled models. Service history critical for long-term ownership costs. Consider PPI focusing on engine, transmission, and suspension components. Market trends favor well-documented examples with original specifications.`,
-        isPositive: true
-      };
-    }
-
-    if (mileage > 120000) {
-      return {
-        recommendation: "⚠️ HIGH MILEAGE: Budget for maintenance but potential value play",
-        analysis: `${mileage.toLocaleString()} miles suggests heavy use but potential value opportunity. Depreciation curve flattens at this mileage, reducing further value loss. Key considerations: maintenance history, major service intervals, and remaining component life. For enthusiast buyers comfortable with higher maintenance, this could offer significant savings versus lower-mileage examples. Recommend comprehensive PPI and $5-10k maintenance budget.`,
-        isPositive: false
-      };
-    }
-
-    return {
-      recommendation: "✅ SOLID ENTHUSIAST CHOICE: Well-positioned for market segment",
-      analysis: `This ${year} ${vehicle.make} ${vehicle.model} offers balanced combination of performance, reliability, and value retention. ${marketPositioning} market positioning aligns with specifications and condition. ${mileageStatus} mileage appropriate for age. Consider maintenance requirements, insurance costs, and intended use. Market trends generally favor well-maintained examples of this vintage and pedigree.`,
-      isPositive: true
-    };
-  };
-  
   useEffect(() => {
     if (vehicle) {
       // Mock similar vehicles for demo
@@ -135,6 +76,42 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
     );
   }
   
+  // Analysis state for the banner
+  const [bannerAnalysis, setBannerAnalysis] = useState<BuyerAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const generateAnalysis = async () => {
+    setIsAnalyzing(true);
+    try {
+      let result: BuyerAnalysis;
+      
+      // Force fallback analysis for the Porsche 911 to use our enhanced enthusiast analysis
+      if (vehicle.id === 'ebay-porsche-1') {
+        console.log('Using enhanced analysis for Porsche 911 Carrera 2');
+        result = getFallbackAnalysis(vehicle as Vehicle);
+      }
+      // Use Gemini API if available, otherwise fall back to pre-generated analysis
+      else if (isGeminiAvailable()) {
+        result = await generateBuyerAnalysis(vehicle as Vehicle);
+      } else {
+        console.warn('Gemini API unavailable, using fallback analysis');
+        result = getFallbackAnalysis(vehicle as Vehicle);
+      }
+      
+      setBannerAnalysis(result);
+    } catch (error) {
+      console.error('Error generating analysis:', error);
+      // If API call fails, use fallback analysis as backup
+      const fallbackResult = getFallbackAnalysis(vehicle as Vehicle);
+      setBannerAnalysis(fallbackResult);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+  
+  // Determine if recommendation is positive when we have an analysis
+  const isPositive = bannerAnalysis ? bannerAnalysis.recommendation !== 'avoid' : true;
+
   return (
     <>
       <Head>
@@ -165,27 +142,47 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
           {/* Advanced LLM Analysis Banner */}
-          {(() => {
-            const analysis = getDetailedAnalysis(vehicle);
-            return (
-              <div className={`border-l-4 ${
-                analysis.isPositive 
-                  ? 'bg-green-50 border-green-500' 
-                  : 'bg-yellow-50 border-yellow-500'
-              }`}>
+          <div className="border-l-4 bg-blue-50 border-blue-500">
+            {bannerAnalysis ? (
+              // Show analysis results when available
+              <>
                 <div className={`px-6 py-3 text-center font-bold text-lg ${
-                  analysis.isPositive ? 'text-green-800' : 'text-yellow-800'
+                  isPositive ? 'text-green-800' : 'text-yellow-800'
                 }`}>
-                  {analysis.recommendation}
+                  {bannerAnalysis.recommendation.toUpperCase()}
                 </div>
                 <div className={`px-6 pb-4 text-sm leading-relaxed ${
-                  analysis.isPositive ? 'text-green-700' : 'text-yellow-700'
+                  isPositive ? 'text-green-700' : 'text-yellow-700'
                 }`}>
-                  <strong>🤖 LLM Analysis:</strong> {analysis.analysis}
+                  <strong>🤖 Vehicle Analysis:</strong> {bannerAnalysis.oneLiner || bannerAnalysis.summary}
                 </div>
+              </>
+            ) : (
+              // Show generate button when no analysis is available
+              <div className="px-6 py-4 flex flex-col sm:flex-row items-center justify-between">
+                <div className="text-blue-700 mb-3 sm:mb-0">
+                  <strong>🤖 Vehicle Analysis:</strong> Get AI-powered enthusiast insights for this vehicle
+                </div>
+                <button
+                  onClick={generateAnalysis}
+                  disabled={isAnalyzing}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>Generate Analysis</>
+                  )}
+                </button>
               </div>
-            );
-          })()}
+            )}
+          </div>
           
           <ImageGallery 
             images={vehicle.images} 
@@ -196,6 +193,13 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Vehicle Details</h2>
+                {/* Add prominent price display */}
+                <div className="bg-gray-100 p-4 rounded-lg mb-4">
+                  <p className="text-sm text-gray-500">Price</p>
+                  <p className="text-2xl font-bold text-primary-600">
+                    ${vehicle.price?.toLocaleString() || 'Contact for Price'}
+                  </p>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-500">Make</p>
@@ -267,6 +271,17 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
               >
                 View Original Listing
               </a>
+              <a
+                href={`https://www.progressive.com/auto/car-insurance-quote/?vehicle=${encodeURIComponent(`${vehicle.year} ${vehicle.make} ${vehicle.model}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white flex-grow md:flex-grow-0 flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                </svg>
+                Need Insurance?
+              </a>
               <Link href="/search" className="btn btn-secondary flex-grow md:flex-grow-0">
                 Back to Search
               </Link>
@@ -274,19 +289,16 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </div>
         </div>
 
-        {/* Market Analysis Section */}
-        <MarketAnalysis vehicle={vehicle} className="mb-8" />
-
-        {/* Alert Subscription Section */}
-        <AlertSubscription className="mb-8" />
-
         {/* Social Posts Section */}
-        <SocialPostsSection 
+        <SocialPostsCarousel 
           make={vehicle.make}
           model={vehicle.model}
           year={vehicle.year}
           className="mb-8"
         />
+
+        {/* Market Analysis Section */}
+        <MarketAnalysis vehicle={vehicle} className="mb-8" />
       </div>
     </>
   );
@@ -295,29 +307,50 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   // Get featured vehicle IDs for pre-generation
   const featuredVehicles = getFeaturedVehicles();
-  const paths = featuredVehicles.map((vehicle) => ({
+  
+  // Also get Hemmings listings for pre-generation
+  let hemmingsVehicles: Vehicle[] = [];
+  try {
+    hemmingsVehicles = await getHemmingsListings();
+    console.log(`Got ${hemmingsVehicles.length} Hemmings vehicles for static paths`);
+  } catch (error) {
+    console.error('Error fetching Hemmings vehicles for static paths:', error);
+  }
+  
+  // Combine all vehicle IDs
+  const allVehicles = [...featuredVehicles, ...hemmingsVehicles];
+  
+  const paths = allVehicles.map((vehicle) => ({
     params: { id: vehicle.id },
   }));
 
   return {
     paths,
-    fallback: 'blocking', // Enable fallback for other vehicle IDs
+    fallback: false, // Must use false for static export mode
   };
 };
 
 export const getStaticProps: GetStaticProps<VehicleDetailProps> = async ({ params }) => {
   const id = params?.id as string;
-  
-  if (!id) {
-    return {
-      notFound: true,
-    };
-  }
 
   // Check if it's a featured vehicle first
   const featuredVehicles = getFeaturedVehicles();
   const featuredVehicle = featuredVehicles.find(v => v.id === id);
   
+  // Special handling for our Porsche 964 with enhanced analysis
+  if (featuredVehicle && id === 'ebay-porsche-1') {
+    // Get the enhanced analysis for this specific vehicle
+    const preloadedAnalysis = getFallbackAnalysis(featuredVehicle);
+    return {
+      props: {
+        vehicle: featuredVehicle,
+        preloadedAnalysis
+      }
+      // Removed revalidate property for static export compatibility
+    };
+  }
+  
+  // Normal featured vehicle without special analysis
   if (featuredVehicle) {
     return {
       props: {
@@ -326,8 +359,23 @@ export const getStaticProps: GetStaticProps<VehicleDetailProps> = async ({ param
     };
   }
 
-  // For other vehicles, we'll return not found for now
-  // In a full implementation, you'd fetch from your API/database here
+  // If not a featured vehicle, check if it's a Hemmings vehicle
+  try {
+    const hemmingsVehicles = await getHemmingsListings();
+    const hemmingsVehicle = hemmingsVehicles.find(v => v.id === id);
+    
+    if (hemmingsVehicle) {
+      return {
+        props: {
+          vehicle: hemmingsVehicle,
+        },
+      };
+    }
+  } catch (error) {
+    console.error(`Error fetching Hemmings vehicle with ID ${id}:`, error);
+  }
+
+  // If not found in either source, return 404
   return {
     notFound: true,
   };

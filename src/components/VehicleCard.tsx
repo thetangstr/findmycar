@@ -9,9 +9,10 @@ import AIInsightButton from './AIInsightButton';
 interface VehicleCardProps {
   vehicle: Vehicle;
   onView?: () => void;
+  className?: string;
 }
 
-const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onView }) => {
+const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onView, className = '' }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [displayFallback, setDisplayFallback] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -46,16 +47,16 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onView }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-      <div className="relative h-56 w-full">
-        <div className="relative w-full h-40 overflow-hidden rounded-t-lg bg-gray-200">
+    <div className={`ios-card slide-in flex flex-col h-full ${className}`}>
+      <div className="relative w-full">
+        <div className="relative w-full h-40 overflow-hidden rounded-t-xl bg-gray-100">
           <Link href={`/vehicles/${vehicle.id}`} onClick={handleClick}>
             {displayFallback || !imageUrl ? (
               // Render a built-in fallback div with vehicle info
-              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-800 cursor-pointer hover:bg-gray-200 transition-colors">
+              <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-800 cursor-pointer hover:bg-gray-100 transition-colors">
                 <div className="text-center p-4">
-                  <p className="font-bold">{vehicle.year} {vehicle.make}</p>
-                  <p>{vehicle.model}</p>
+                  <p className="font-mono font-semibold">{vehicle.year} {vehicle.make}</p>
+                  <p className="font-inter">{vehicle.model}</p>
                 </div>
               </div>
             ) : (
@@ -76,57 +77,54 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onView }) => {
           <FavoriteButton vehicleId={vehicle.id} />
           <CompareButton vehicleId={vehicle.id} />
         </div>
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs font-semibold px-2 py-1 rounded-md">
-          Source: {vehicle.source}
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 backdrop-blur-sm text-white text-xs font-mono px-2 py-1 rounded-full">
+          {vehicle.source}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent h-20"></div>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent h-16"></div>
       </div>
       
-      <div className="p-5">
+      <div className="p-4 flex-grow flex flex-col">
         <Link href={`/vehicles/${vehicle.id}`} onClick={handleClick}>
-          <h3 className="text-xl font-semibold text-gray-900 hover:text-primary-600 transition-colors duration-300">
+          <h3 className="text-xl font-semibold font-mono tracking-tight text-gray-900 hover:text-teal-600 transition-colors duration-300">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </h3>
         </Link>
         
         <div className="mt-3 flex justify-between items-center">
-          <span className="text-2xl font-bold text-primary-600">${vehicle.price.toLocaleString()}</span>
-          <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700">{vehicle.mileage.toLocaleString()} miles</span>
+          <span className="text-2xl font-bold text-teal-500">${vehicle.price.toLocaleString()}</span>
+          <span className="px-3 py-1 bg-teal-50 rounded-full text-xs font-medium text-teal-700 font-inter">{vehicle.mileage.toLocaleString()} miles</span>
         </div>
         
-        <div className="mt-4 flex flex-wrap gap-3">
-          <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-sm font-medium text-gray-700 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            {vehicle.exteriorColor}
-          </div>
-          <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-sm font-medium text-gray-700 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            {vehicle.fuelType}
-          </div>
-          <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-sm font-medium text-gray-700 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-            </svg>
-            {vehicle.transmission}
-          </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {vehicle.exteriorColor && (
+            <div className="px-3 py-1 bg-gray-50 rounded-full text-xs font-medium text-gray-700 flex items-center">
+              {vehicle.exteriorColor}
+            </div>
+          )}
+          {vehicle.fuelType && (
+            <div className="px-3 py-1 bg-gray-50 rounded-full text-xs font-medium text-gray-700 flex items-center">
+              {vehicle.fuelType}
+            </div>
+          )}
+          {vehicle.transmission && (
+            <div className="px-3 py-1 bg-gray-50 rounded-full text-xs font-medium text-gray-700 flex items-center">
+              {vehicle.transmission}
+            </div>
+          )}
         </div>
         
-        <div className="mt-5 truncate text-sm text-gray-500 italic">
+        <div className="mt-4 truncate text-sm text-gray-500 font-inter">
           {vehicle.description.substring(0, 80)}...
         </div>
         
-        <div className="mt-6 space-y-3">
+        <div className="mt-6 space-y-3 mt-auto">
           {/* AI Insight Button */}
           <AIInsightButton vehicle={vehicle} className="w-full" />
           
           {/* View Details Button */}
           <Link 
             href={`/vehicles/${vehicle.id}`} 
-            className="block w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg text-center transition-colors duration-300 shadow-sm hover:shadow"
+            className="block w-full py-2.5 px-4 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-full text-center transition-colors duration-300 shadow-sm hover:shadow font-inter"
             onClick={handleClick}
           >
             View Details

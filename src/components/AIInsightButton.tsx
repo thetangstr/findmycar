@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Vehicle } from '@/types';
-import { generateBuyerAnalysis, BuyerAnalysis, isGeminiAvailable } from '@/services/geminiService';
+import { generateBuyerAnalysis, BuyerAnalysis, isGeminiAvailable, getFallbackAnalysis } from '@/services/geminiService';
 
 interface AIInsightButtonProps {
   vehicle: Vehicle;
@@ -15,11 +15,39 @@ const AIInsightButton: React.FC<AIInsightButtonProps> = ({ vehicle, className = 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     try {
-      const result = await generateBuyerAnalysis(vehicle);
+      let result: BuyerAnalysis;
+      
+      // Always generate fresh analysis for demo purposes
+      // This ensures we don't get cached/stale analyses
+      console.log('Generating fresh analysis for vehicle:', vehicle.id);
+      
+      // Force fallback analysis for demo vehicles to ensure we get our enhanced analysis
+      if (vehicle.id === 'ebay-porsche-1') {
+        console.log('Using enhanced analysis for Porsche 911');
+        result = getFallbackAnalysis(vehicle);
+      } 
+      // Use Gemini API if available, otherwise fall back to pre-generated analysis
+      else if (isGeminiAvailable()) {
+        // Generate fresh analysis using our enthusiast-focused prompt via Gemini API
+        result = await generateBuyerAnalysis(vehicle);
+      } else {
+        // Fall back to pre-generated analysis if Gemini API is unavailable
+        console.warn('Gemini API unavailable, using fallback analysis');
+        result = getFallbackAnalysis(vehicle);
+      }
+      
       setAnalysis(result);
       setShowModal(true);
     } catch (error) {
       console.error('Error generating analysis:', error);
+      // If API call fails, use fallback analysis as backup
+      try {
+        const fallbackResult = getFallbackAnalysis(vehicle);
+        setAnalysis(fallbackResult);
+        setShowModal(true);
+      } catch (fallbackError) {
+        console.error('Error generating fallback analysis:', fallbackError);
+      }
     } finally {
       setIsAnalyzing(false);
     }

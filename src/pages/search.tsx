@@ -78,15 +78,8 @@ export default function Search() {
   
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Search Vehicles</h1>
-        <p className="text-gray-600">
-          Use natural language or filters to find the perfect vehicle for your needs.
-        </p>
-      </div>
-      
       {/* Natural Language Search Component */}
-      <NaturalLanguageSearch onSearch={handleNaturalLanguageSearch} />
+      <NaturalLanguageSearch onSearch={handleNaturalLanguageSearch} className="mb-8" />
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-1">
@@ -200,7 +193,7 @@ export default function Search() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
               {sortedVehicles.map(vehicle => (
                 <VehicleCard 
                   key={vehicle.id} 

@@ -174,7 +174,7 @@ export const getFeaturedVehicles = async (count: number = 3): Promise<Vehicle[]>
       return sortedVehicles.slice(0, count);
     } catch (fallbackError) {
       console.error('Error in fallback featured vehicles:', fallbackError);
-      return [];
+    return [];
     }
   }
 };

@@ -4,268 +4,138 @@ import { SearchFilters as SearchFiltersType, Vehicle } from '@/types';
 interface NaturalLanguageSearchProps {
   onSearch: (filters: SearchFiltersType) => void;
   onVehiclesFound?: (vehicles: Vehicle[]) => void;
+  className?: string;
 }
 
-const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({ onSearch, onVehiclesFound }) => {
+const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({ onSearch, onVehiclesFound, className = '' }) => {
   const [query, setQuery] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [thinkingSteps, setThinkingSteps] = useState<string[]>([]);
   const [useIntelligentSearch, setUseIntelligentSearch] = useState(true);
+  const [showThinking, setShowThinking] = useState(false);
 
-  // Function to parse natural language query into search filters
-  const parseQuery = (text: string): SearchFiltersType => {
+  // A simplified parser for when intelligent search is off or fails
+  const parseQueryFallback = (text: string): SearchFiltersType => {
     const filters: SearchFiltersType = {};
-    
-    // Parse for vehicle type/body style
-    const bodyTypePatterns = [
-      { regex: /\b(suv|suvs|crossover|crossovers)\b/i, value: 'SUV' },
-      { regex: /\b(sedan|sedans)\b/i, value: 'Sedan' },
-      { regex: /\b(truck|trucks|pickup|pickups)\b/i, value: 'Truck' },
-      { regex: /\b(coupe|coupes)\b/i, value: 'Coupe' },
-      { regex: /\b(convertible|convertibles)\b/i, value: 'Convertible' },
-      { regex: /\b(hatchback|hatchbacks)\b/i, value: 'Hatchback' },
-      { regex: /\b(wagon|wagons)\b/i, value: 'Wagon' },
-      { regex: /\b(van|vans|minivan|minivans)\b/i, value: 'Van' }
-    ];
-    
-    for (const pattern of bodyTypePatterns) {
-      if (pattern.regex.test(text)) {
-        filters.bodyType = pattern.value;
-        break;
-      }
+    const lowerCaseText = text.toLowerCase();
+    if (lowerCaseText.includes('sedan')) filters.bodyType = 'Sedan';
+    if (lowerCaseText.includes('suv')) filters.bodyType = 'SUV';
+    if (lowerCaseText.includes('truck')) filters.bodyType = 'Truck';
+    const priceMatch = lowerCaseText.match(/under \$?(\d+)k?/);
+    if (priceMatch) {
+      filters.priceMax = parseInt(priceMatch[1]) * 1000;
     }
-    
-    // Parse for makes
-    const commonMakes = [
-      'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes', 
-      'Audi', 'Lexus', 'Hyundai', 'Kia', 'Subaru', 'Mazda', 'Volkswagen',
-      'Jeep', 'Tesla', 'Volvo', 'Porsche', 'Acura', 'Infiniti', 'Cadillac'
-    ];
-    
-    for (const make of commonMakes) {
-      if (new RegExp(`\\b${make}\\b`, 'i').test(text)) {
-        filters.make = make;
-        break;
-      }
-    }
-    
-    // Parse for price ranges
-    const underPriceMatch = text.match(/\bunder\s+\$?(\d+)[k]?\b/i);
-    const maxPriceMatch = text.match(/\bless than\s+\$?(\d+)[k]?\b/i);
-    const priceRangeMatch = text.match(/\bbetween\s+\$?(\d+)[k]?\s+and\s+\$?(\d+)[k]?\b/i);
-    
-    if (underPriceMatch || maxPriceMatch) {
-      const match = underPriceMatch || maxPriceMatch;
-      let price = parseInt(match![1], 10);
-      if (match![0].toLowerCase().includes('k')) {
-        price *= 1000;
-      }
-      filters.priceMax = price;
-    } else if (priceRangeMatch) {
-      let min = parseInt(priceRangeMatch[1], 10);
-      let max = parseInt(priceRangeMatch[2], 10);
-      
-      if (priceRangeMatch[0].toLowerCase().includes('k')) {
-        min *= 1000;
-        max *= 1000;
-      }
-      
-      filters.priceMin = min;
-      filters.priceMax = max;
-    }
-    
-    // Parse for year ranges
-    const yearMatch = text.match(/\b(20\d{2}|19\d{2})\b/g);
-    if (yearMatch && yearMatch.length === 1) {
-      const year = parseInt(yearMatch[0], 10);
-      // If it's likely a newer car, set as min year
-      if (year > 2010) {
-        filters.yearMin = year;
-      } else {
-        filters.yearMax = year;
-      }
-    } else if (yearMatch && yearMatch.length >= 2) {
-      const years = yearMatch.map(y => parseInt(y, 10)).sort((a, b) => a - b);
-      filters.yearMin = years[0];
-      filters.yearMax = years[years.length - 1];
-    }
-    
-    // Parse for features
-    const featurePatterns = [
-      { regex: /\b(leather|leather seats)\b/i, value: 'Leather Seats' },
-      { regex: /\b(sunroof|moonroof)\b/i, value: 'Sunroof' },
-      { regex: /\b(navigation|nav|gps)\b/i, value: 'Navigation' },
-      { regex: /\b(bluetooth)\b/i, value: 'Bluetooth' },
-      { regex: /\b(heated seats)\b/i, value: 'Heated Seats' },
-      { regex: /\b(backup camera|rear camera|reverse camera)\b/i, value: 'Backup Camera' }
-    ];
-    
-    const features: string[] = [];
-    for (const pattern of featurePatterns) {
-      if (pattern.regex.test(text)) {
-        features.push(pattern.value);
-      }
-    }
-    
-    if (features.length > 0) {
-      filters.features = features;
-    }
-    
-    // Parse for fuel type
-    const fuelTypePatterns = [
-      { regex: /\b(electric|ev)\b/i, value: 'Electric' },
-      { regex: /\b(hybrid)\b/i, value: 'Hybrid' },
-      { regex: /\b(plug-in hybrid|phev)\b/i, value: 'Plug-in Hybrid' },
-      { regex: /\b(gas|gasoline)\b/i, value: 'Gasoline' },
-      { regex: /\b(diesel)\b/i, value: 'Diesel' }
-    ];
-    
-    for (const pattern of fuelTypePatterns) {
-      if (pattern.regex.test(text)) {
-        filters.fuelType = pattern.value;
-        break;
-      }
-    }
-    
-    // Parse for transmission
-    const transmissionPatterns = [
-      { regex: /\b(automatic|auto)\b/i, value: 'Automatic' },
-      { regex: /\b(manual|stick shift)\b/i, value: 'Manual' },
-      { regex: /\b(cvt)\b/i, value: 'CVT' }
-    ];
-    
-    for (const pattern of transmissionPatterns) {
-      if (pattern.regex.test(text)) {
-        filters.transmission = pattern.value;
-        break;
-      }
-    }
-    
-    // Parse for drivetrain
-    const drivetrainPatterns = [
-      { regex: /\b(awd|all wheel drive|all-wheel drive)\b/i, value: 'AWD' },
-      { regex: /\b(4wd|4 wheel drive|four wheel drive|4x4)\b/i, value: '4WD' },
-      { regex: /\b(fwd|front wheel drive|front-wheel drive)\b/i, value: 'FWD' },
-      { regex: /\b(rwd|rear wheel drive|rear-wheel drive)\b/i, value: 'RWD' }
-    ];
-    
-    for (const pattern of drivetrainPatterns) {
-      if (pattern.regex.test(text)) {
-        filters.drivetrain = pattern.value;
-        break;
-      }
-    }
-    
     return filters;
   };
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-    
+
+    setThinkingSteps([]);
     setIsProcessing(true);
-    
+
     try {
       if (useIntelligentSearch) {
-        // Use the intelligent search service for better results
         const { intelligentVehicleSearch } = await import('../services/intelligentSearchService');
-        const vehicles = await intelligentVehicleSearch(query);
-        
-        if (onVehiclesFound && vehicles.length > 0) {
+        let searchSource: string | undefined = undefined;
+        const lowerQuery = query.toLowerCase();
+        if (lowerQuery.includes('from hemmings')) searchSource = 'hemmings';
+        else if (lowerQuery.includes('from bat') || lowerQuery.includes('from bring a trailer')) searchSource = 'bat';
+        // Add other source detections here, e.g., 'from autodev'
+
+        const vehicles = await intelligentVehicleSearch(query, (message: string) => {
+          // Only update steps if the user wants to see them
+          if (showThinking) {
+            setThinkingSteps((prev) => [...prev, message]);
+          }
+        }, searchSource);
+
+        if (onVehiclesFound) {
           onVehiclesFound(vehicles);
-        } else {
-          // Fallback to traditional filter parsing if no vehicles found
-          const filters = parseQuery(query);
-          onSearch(filters);
         }
+        // If intelligent search is used, we assume onVehiclesFound handles results or onSearch is implicitly covered by it.
+        // If specific filters need to be extracted even after intelligent search, that logic would go here.
+
       } else {
-        // Use traditional filter parsing
-        const filters = parseQuery(query);
-        onSearch(filters);
+        // Use the basic fallback parser
+        let searchSource: string | undefined = undefined;
+        const lowerQuery = query.toLowerCase();
+        if (lowerQuery.includes('from hemmings')) searchSource = 'hemmings';
+        else if (lowerQuery.includes('from bat') || lowerQuery.includes('from bring a trailer')) searchSource = 'bat';
+
+        const filters = parseQueryFallback(query);
+        onSearch({ ...filters, source: searchSource });
       }
     } catch (error) {
-      console.error('Error in intelligent search, falling back to traditional search:', error);
-      // Fallback to traditional filter parsing
-      const filters = parseQuery(query);
-      onSearch(filters);
+      console.error('Error during search, falling back to basic parser:', error);
+      // If any error occurs, fall back to the basic parser
+      let searchSource: string | undefined = undefined;
+      const lowerQuery = query.toLowerCase();
+      if (lowerQuery.includes('from hemmings')) searchSource = 'hemmings';
+      else if (lowerQuery.includes('from bat') || lowerQuery.includes('from bring a trailer')) searchSource = 'bat';
+      const filters = parseQueryFallback(query);
+      onSearch({ ...filters, source: searchSource });
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Natural Language Search</h2>
+    <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`}>
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">Intelligent Car Search</h2>
       <p className="text-gray-600 mb-4">
-        Describe what you're looking for in plain English, e.g., "SUV under $40k with leather seats"
+        Describe your ideal car, e.g., "A reliable BMW sedan under $40k with a manual transmission."
       </p>
-      
+
       <div className="flex flex-col md:flex-row gap-3">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="What kind of vehicle are you looking for?"
-          className="input flex-grow"
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          placeholder="What are you looking for?"
+          className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+          disabled={isProcessing}
         />
-        
         <button
           onClick={handleSearch}
           disabled={isProcessing || !query.trim()}
-          className="btn btn-primary whitespace-nowrap"
+          className="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 transition"
         >
-          {isProcessing ? 'Processing...' : 'Search'}
+          {isProcessing ? 'Searching...' : 'Search'}
         </button>
       </div>
-      
-      {/* Search mode toggle */}
-      <div className="mt-4 flex items-center gap-4">
-        <label className="flex items-center gap-2 text-sm text-gray-600">
+
+      <div className="flex items-center mt-4">
+        <div className="flex items-center">
           <input
+            id="show-thinking-checkbox"
             type="checkbox"
-            checked={useIntelligentSearch}
-            onChange={(e) => setUseIntelligentSearch(e.target.checked)}
-            className="rounded border-gray-300"
+            checked={showThinking}
+            onChange={(e) => setShowThinking(e.target.checked)}
+            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
           />
-          Use AI-powered search (understands car terminology like "e46 zhp")
-        </label>
-      </div>
-      
-      {/* Example queries */}
-      <div className="mt-4">
-        <p className="text-sm text-gray-500 mb-2">
-          {useIntelligentSearch ? 'Try these AI search examples:' : 'Try these basic examples:'}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {(useIntelligentSearch ? [
-            'e46 zhp',
-            '964 turbo',
-            'jza80 supra',
-            'rs4 avant',
-            'm3 e92',
-            'porsche gt3',
-            'bmw with zhp package'
-          ] : [
-            'SUV under $40k',
-            'Toyota with leather seats',
-            '2020 or newer sedan',
-            'Electric vehicle with AWD',
-            'Truck with backup camera'
-          ]).map((example, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setQuery(example);
-                setTimeout(handleSearch, 100);
-              }}
-              className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700"
-            >
-              {example}
-            </button>
-          ))}
+          <label htmlFor="show-thinking-checkbox" className="ml-2 block text-sm text-gray-900">
+            Show AI's thinking
+          </label>
         </div>
       </div>
+
+      {showThinking && thinkingSteps.length > 0 && (
+        <div className="bg-gray-50 p-4 rounded-lg mt-4 animate-fade-in-up">
+          <h3 className="text-lg font-medium text-gray-800 mb-2">Thinking...</h3>
+          <ul className="space-y-2">
+            {thinkingSteps.map((step, index) => (
+              <li key={index} className="text-sm text-gray-600 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+                {step}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
 
 export default NaturalLanguageSearch;
+

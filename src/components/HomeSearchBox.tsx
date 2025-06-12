@@ -32,17 +32,75 @@ const HomeSearchBox: React.FC<HomeSearchBoxProps> = ({ onSearch, isSearching }) 
       }
     }
     
-    // Parse for makes
-    const commonMakes = [
-      'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes', 
-      'Audi', 'Lexus', 'Hyundai', 'Kia', 'Subaru', 'Mazda', 'Volkswagen',
-      'Jeep', 'Tesla', 'Volvo', 'Porsche', 'Acura', 'Infiniti', 'Cadillac'
-    ];
+    // Model code mappings to help identify specific car models by their chassis codes
+    const modelCodes: {[key: string]: {make: string, model: string}} = {
+      'e30': {make: 'BMW', model: '3 Series'},
+      'e36': {make: 'BMW', model: '3 Series'},
+      'e46': {make: 'BMW', model: '3 Series'},
+      'e90': {make: 'BMW', model: '3 Series'},
+      'f30': {make: 'BMW', model: '3 Series'},
+      'g20': {make: 'BMW', model: '3 Series'},
+      'e39': {make: 'BMW', model: '5 Series'},
+      'e60': {make: 'BMW', model: '5 Series'},
+      'f10': {make: 'BMW', model: '5 Series'},
+      'g30': {make: 'BMW', model: '5 Series'},
+      'e24': {make: 'BMW', model: '6 Series'},
+      'e63': {make: 'BMW', model: '6 Series'},
+      'f12': {make: 'BMW', model: '6 Series'},
+      'e38': {make: 'BMW', model: '7 Series'},
+      'e65': {make: 'BMW', model: '7 Series'},
+      'f01': {make: 'BMW', model: '7 Series'},
+      'g11': {make: 'BMW', model: '7 Series'},
+      'z3': {make: 'BMW', model: 'Z3'},
+      'z4': {make: 'BMW', model: 'Z4'},
+      'm3': {make: 'BMW', model: 'M3'},
+      'm5': {make: 'BMW', model: 'M5'},
+      'c5': {make: 'Chevrolet', model: 'Corvette'},
+      'c6': {make: 'Chevrolet', model: 'Corvette'},
+      'c7': {make: 'Chevrolet', model: 'Corvette'},
+      'c8': {make: 'Chevrolet', model: 'Corvette'},
+      '996': {make: 'Porsche', model: '911'},
+      '997': {make: 'Porsche', model: '911'},
+      '991': {make: 'Porsche', model: '911'},
+      '992': {make: 'Porsche', model: '911'},
+      '964': {make: 'Porsche', model: '911'},
+      '993': {make: 'Porsche', model: '911'},
+      'na1': {make: 'Acura', model: 'NSX'},
+      'na2': {make: 'Acura', model: 'NSX'},
+      'nc1': {make: 'Acura', model: 'NSX'},
+      'fd': {make: 'Mazda', model: 'RX-7'},
+      'fc': {make: 'Mazda', model: 'RX-7'},
+      'fb': {make: 'Mazda', model: 'RX-7'},
+      'mk4': {make: 'Toyota', model: 'Supra'},
+      'mk5': {make: 'Toyota', model: 'Supra'},
+      'r32': {make: 'Nissan', model: 'GT-R'},
+      'r33': {make: 'Nissan', model: 'GT-R'},
+      'r34': {make: 'Nissan', model: 'GT-R'},
+      'r35': {make: 'Nissan', model: 'GT-R'}
+    };
     
-    for (const make of commonMakes) {
-      if (new RegExp(`\\b${make}\\b`, 'i').test(text)) {
-        filters.make = make;
+    // Check for model codes first
+    for (const [code, carInfo] of Object.entries(modelCodes)) {
+      if (new RegExp(`\\b${code}\\b`, 'i').test(text)) {
+        filters.make = carInfo.make;
+        filters.model = carInfo.model;
         break;
+      }
+    }
+    
+    // If no model code was found, check for common makes
+    if (!filters.make) {
+      const commonMakes = [
+        'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes', 
+        'Audi', 'Lexus', 'Hyundai', 'Kia', 'Subaru', 'Mazda', 'Volkswagen',
+        'Jeep', 'Tesla', 'Volvo', 'Porsche', 'Acura', 'Infiniti', 'Cadillac'
+      ];
+      
+      for (const make of commonMakes) {
+        if (new RegExp(`\\b${make}\\b`, 'i').test(text)) {
+          filters.make = make;
+          break;
+        }
       }
     }
     

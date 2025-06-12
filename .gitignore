@@ -47,3 +47,28 @@ out/
 .firebase/*.cache
 functions/node_modules/
 next/standalone/node_modules/
+
+# Python Scraper
+python_scraper/venv/
+python_scraper/serviceAccountKey.json
+
+# Firebase service accounts
+*-firebase-adminsdk-*.json
+service-account.json
+
+# Generated files
+*.log
+new_build_log.txt
+explore-layout.html
+
+# Scripts and temporary files
+scripts/
+src/scripts/
+
+# Large media files
+public/images/
+public/vehicle-images/
+public/logo/
+
+# Archived services
+src/services/archived/
