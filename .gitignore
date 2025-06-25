@@ -72,3 +72,16 @@ public/logo/
 
 # Archived services
 src/services/archived/
+
+# Test screenshots
+final-test-screenshots/
+test-screenshots/
+
+# Root directory images
+*.png
+
+# Root directory test files
+*.js
+
+# Backup files
+*.backup
