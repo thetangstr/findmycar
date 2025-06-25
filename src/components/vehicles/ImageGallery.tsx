@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { Vehicle } from '@/types';
 
 interface ImageGalleryProps {
   images: string[];
   alt: string;
+  vehicle?: Vehicle;
 }
 
 /**
@@ -16,7 +18,7 @@ interface ImageGalleryProps {
  * - Image counter
  * - Fallback for missing images
  */
-const ImageGallery: React.FC<ImageGalleryProps> = ({ images, alt }) => {
+const ImageGallery: React.FC<ImageGalleryProps> = ({ images, alt, vehicle }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -117,6 +119,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, alt }) => {
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
           {currentIndex + 1} / {displayImages.length}
         </div>
+        
+        {/* Source Bubble */}
+        {vehicle?.source && (
+          <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 backdrop-blur-sm text-white text-xs font-mono px-2 py-1 rounded-full">
+            {vehicle.source}
+          </div>
+        )}
       </div>
       
       {/* Thumbnail Navigation */}

@@ -31,7 +31,7 @@ export default function RecentlyViewed() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Recently Viewed Vehicles</h1>
         <p className="text-gray-600">
-          View your browsing history of vehicles you've recently viewed.
+          View your browsing history of vehicles you&apos;ve recently viewed.
         </p>
       </div>
       
@@ -51,7 +51,7 @@ export default function RecentlyViewed() {
           </svg>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">No Recently Viewed Vehicles</h2>
           <p className="text-gray-600 mb-6">
-            You haven't viewed any vehicles yet. Browse our inventory to see vehicles here.
+            You haven&apos;t viewed any vehicles yet. Browse our inventory to see vehicles here.
           </p>
           <Link href="/search" className="btn btn-primary">
             Browse Vehicles

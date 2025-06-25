@@ -27,10 +27,10 @@ const AlertSubscription: React.FC<AlertSubscriptionProps> = ({ className = '' })
       {isSubscribed ? (
         <div className="text-center bg-green-50 rounded-lg p-4">
           <p className="font-medium text-green-800">
-            ✅ You're subscribed!
+            ✅ You&apos;re subscribed!
           </p>
           <p className="text-sm text-green-700 mt-1">
-            We'll notify you at <span className="font-semibold">{email}</span> of any price changes.
+            We&apos;ll notify you at <span className="font-semibold">{email}</span> of any price changes.
           </p>
         </div>
       ) : (

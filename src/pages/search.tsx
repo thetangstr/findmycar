@@ -9,6 +9,11 @@ import SearchHistoryDropdown from '@/components/SearchHistoryDropdown';
 import SaveSearchModal from '@/components/SaveSearchModal';
 import SortOptions from '@/components/SortOptions';
 import NaturalLanguageSearch from '@/components/NaturalLanguageSearch';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import VehicleCardSkeleton from '@/components/VehicleCardSkeleton';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import SEOHead from '@/components/SEOHead';
+import { useToastContext } from '@/contexts/ToastContext';
 import { SearchFilters as SearchFiltersType } from '@/types';
 import { Vehicle } from '@/types';
 
@@ -16,6 +21,7 @@ export default function Search() {
   const { vehicles, filteredVehicles, filters, applyFilters, getVehicleById, loading } = useVehicles();
   const { searchHistory, addToHistory } = useSearchHistory();
   const { saveSearch } = useSavedSearches();
+  const { success, error } = useToastContext();
   
   const { addToRecentlyViewed } = useRecentlyViewed(getVehicleById);
   
@@ -56,13 +62,43 @@ export default function Search() {
   }, [filteredVehicles, filters.sortBy]);
   
   const handleApplyFilters = async (newFilters: SearchFiltersType) => {
-    await applyFilters(newFilters);
-    addToHistory(newFilters);
-    setShowHistory(false);
+    try {
+      await applyFilters(newFilters);
+      addToHistory(newFilters);
+      setShowHistory(false);
+      
+      if (filteredVehicles.length === 0) {
+        error(
+          'No Results Found',
+          'Try adjusting your search criteria to find more vehicles.',
+          {
+            duration: 5000,
+            action: {
+              label: 'Clear Filters',
+              onClick: () => applyFilters({})
+            }
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Error applying filters:', err);
+      error(
+        'Search Error',
+        'Failed to apply search filters. Please try again.',
+        { duration: 5000 }
+      );
+    }
   };
   
   const handleSaveSearch = (name: string) => {
-    saveSearch(name, filters);
+    try {
+      saveSearch(name, filters);
+      success('Search Saved', `"${name}" has been saved to your search history.`);
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Error saving search:', err);
+      error('Save Failed', 'Unable to save search. Please try again.');
+    }
   };
   
   const handleHistoryItemClick = async (filters: SearchFiltersType) => {
@@ -72,14 +108,44 @@ export default function Search() {
   
   // Handler for natural language search
   const handleNaturalLanguageSearch = async (nlFilters: SearchFiltersType) => {
-    await applyFilters(nlFilters);
-    addToHistory(nlFilters);
+    try {
+      await applyFilters(nlFilters);
+      addToHistory(nlFilters);
+      success('Smart Search Complete', 'Natural language search processed successfully!');
+    } catch (err) {
+      console.error('Error in natural language search:', err);
+      error(
+        'Search Processing Failed', 
+        'Unable to process natural language search. Try using traditional filters.',
+        { duration: 6000 }
+      );
+    }
   };
   
   return (
-    <div>
-      {/* Natural Language Search Component */}
-      <NaturalLanguageSearch onSearch={handleNaturalLanguageSearch} className="mb-8" />
+    <ErrorBoundary
+      fallback={
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Search Temporarily Unavailable</h2>
+          <p className="text-gray-600 mb-4">We&apos;re having trouble loading the search page. Please try refreshing.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
+          >
+            Refresh Page
+          </button>
+        </div>
+      }
+    >
+      <SEOHead
+        title="Search Vehicles | FindMyCar - AI-Powered Vehicle Search"
+        description="Search thousands of vehicles from multiple sources including BringATrailer, Hemmings, and classic car dealers. Use natural language search or advanced filters to find your perfect car."
+        keywords={['vehicle search', 'car finder', 'auto search', 'classic car search', 'bring a trailer search', 'hemmings search']}
+        canonicalUrl="https://findmycar.app/search"
+      />
+      <div>
+        {/* Natural Language Search Component */}
+        <NaturalLanguageSearch onSearch={handleNaturalLanguageSearch} className="mb-8" />
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-1">
@@ -141,18 +207,26 @@ export default function Search() {
         <div className="lg:col-span-3">
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 
+                className="text-xl font-semibold text-gray-900"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {filteredVehicles.length} {filteredVehicles.length === 1 ? 'Vehicle' : 'Vehicles'} Found
               </h2>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Sort by:</span>
+                  <label htmlFor="sort-select" className="text-sm text-gray-600">
+                    Sort by:
+                  </label>
                   <select 
-                    className="border border-gray-300 rounded-md text-sm p-1"
+                    id="sort-select"
+                    className="border border-gray-300 rounded-md text-sm p-1 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     value={filters.sortBy || ''}
                     onChange={(e) => {
                       applyFilters({ ...filters, sortBy: e.target.value });
                     }}
+                    aria-label="Sort search results"
                   >
                     <option value="">Default</option>
                     <option value="price-asc">Price: Low to High</option>
@@ -169,12 +243,24 @@ export default function Search() {
           </div>
           
           {loading ? (
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto mb-4"></div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Loading vehicles...</h3>
-              <p className="text-gray-600 mb-4">
-                Please wait while we find the perfect match for you.
-              </p>
+            <div className="space-y-6">
+              {/* Loading header */}
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="flex items-center justify-center gap-3">
+                  <LoadingSpinner size="lg" />
+                  <div>
+                    <h3 className="text-xl font-medium text-gray-900">Searching vehicles...</h3>
+                    <p className="text-gray-600">Finding the perfect match for you</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Skeleton vehicle cards */}
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <VehicleCardSkeleton key={index} />
+                ))}
+              </div>
             </div>
           ) : filteredVehicles.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -193,13 +279,19 @@ export default function Search() {
               </button>
             </div>
           ) : (
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-              {sortedVehicles.map(vehicle => (
-                <VehicleCard 
-                  key={vehicle.id} 
-                  vehicle={vehicle} 
-                  onView={() => handleViewVehicle(vehicle.id)}
-                />
+            <div 
+              className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
+              role="list"
+              aria-label="Search results"
+            >
+              {sortedVehicles.map((vehicle, index) => (
+                <div key={vehicle.id} role="listitem">
+                  <VehicleCard 
+                    vehicle={vehicle} 
+                    onView={() => handleViewVehicle(vehicle.id)}
+                    showRatingButtons={true}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -213,6 +305,7 @@ export default function Search() {
         onSave={handleSaveSearch}
         filters={filters}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

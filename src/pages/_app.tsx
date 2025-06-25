@@ -5,6 +5,8 @@ import Head from 'next/head';
 import { useEffect } from 'react';
 import { AuthProvider } from '@/utils/auth';
 import { cleanupGarbledElements } from '@/utils/cleanupUtils';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { ToastProvider } from '@/contexts/ToastContext';
 
 export default function App({ Component, pageProps }: AppProps) {
   // Run cleanup utility when component mounts (client-side only)
@@ -22,11 +24,15 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="/cleanup.css" />
       </Head>
-      <AuthProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </AuthProvider>
+      <ErrorBoundary>
+        <ToastProvider>
+          <AuthProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </AuthProvider>
+        </ToastProvider>
+      </ErrorBoundary>
     </>
   );
 }

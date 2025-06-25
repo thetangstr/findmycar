@@ -40,9 +40,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Mock user data (as if signed in)
   const mockUser = {
-    name: 'Alex Thompson',
-    email: 'alex@example.com',
-    avatar: 'https://i.pravatar.cc/150?img=12', // Using a placeholder avatar service
+    name: 'Kailor Tang',
+    email: 'kailor@example.com',
+    avatar: 'https://robohash.org/Kailor.png?set=set4&size=150x150', // Cartoon robot avatar
     alerts: ['2018 Acura NSX', '1967 Chevrolet Corvette']
   };
   
@@ -105,7 +105,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-600 mb-4">Get notified when prices change for vehicles you're interested in.</p>
+              <p className="text-gray-600 mb-4">Get notified when prices change for vehicles you&apos;re interested in.</p>
               
               {mockUser.alerts.length > 0 ? (
                 <div className="space-y-3">
@@ -121,7 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <p className="text-gray-500">You don't have any active price alerts.</p>
+                  <p className="text-gray-500">You don&apos;t have any active price alerts.</p>
                 </div>
               )}
             </div>

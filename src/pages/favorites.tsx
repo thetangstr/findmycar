@@ -53,7 +53,7 @@ export default function Favorites() {
           </svg>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">No Favorites Yet</h2>
           <p className="text-gray-600 mb-6">
-            You haven't added any vehicles to your favorites yet. Browse our inventory and add vehicles you like to your favorites.
+            You haven&apos;t added any vehicles to your favorites yet. Browse our inventory and add vehicles you like to your favorites.
           </p>
           <Link href="/search" className="btn btn-primary">
             Browse Vehicles

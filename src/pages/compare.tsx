@@ -48,7 +48,7 @@ export default function Compare() {
           </svg>
           <h1 className="text-2xl font-bold text-gray-900 mb-4">No Vehicles to Compare</h1>
           <p className="text-gray-600 mb-6">
-            You haven't added any vehicles to your comparison list yet. Browse our inventory and add vehicles to compare them side by side.
+            You haven&apos;t added any vehicles to your comparison list yet. Browse our inventory and add vehicles to compare them side by side.
           </p>
           <Link href="/search" className="btn btn-primary">
             Browse Vehicles

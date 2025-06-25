@@ -220,7 +220,7 @@ const MarketAnalysis: React.FC<MarketAnalysisProps> = ({ vehicle, className = ''
               <PriceBar label="Market Average" price={marketPrice} color="bg-orange-500" vehiclePrice={vehicle.price} />
           </div>
            <p className="text-sm text-gray-600 mt-4">
-            This vehicle's price is <span className="font-semibold text-green-600">5% below</span> the market average.
+            This vehicle&apos;s price is <span className="font-semibold text-green-600">5% below</span> the market average.
           </p>
         </div>
 

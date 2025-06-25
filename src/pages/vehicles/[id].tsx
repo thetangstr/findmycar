@@ -8,6 +8,8 @@ import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import CompareButton from '@/components/CompareButton';
 import FavoriteButton from '@/components/FavoriteButton';
 import AIInsightButton from '@/components/AIInsightButton';
+import SEOHead from '@/components/SEOHead';
+import PriceAnalysisIndicator from '@/components/PriceAnalysisIndicator';
 import { getFallbackAnalysis, generateBuyerAnalysis, isGeminiAvailable, BuyerAnalysis } from '@/services/geminiService';
 import ImageGallery from '@/components/vehicles/ImageGallery';
 import SocialPostsCarousel from '@/components/SocialPostsCarousel';
@@ -32,6 +34,10 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
   // Find similar vehicles (same make, model, within 3 years of this vehicle's year)
   const [similarVehicles, setSimilarVehicles] = useState<Vehicle[]>([]);
 
+  // Analysis state for the banner - load automatically on page load
+  const [bannerAnalysis, setBannerAnalysis] = useState<BuyerAnalysis | null>(preloadedAnalysis || null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   useEffect(() => {
     if (vehicle) {
       // Mock similar vehicles for demo
@@ -51,6 +57,42 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
     }
   }, [vehicle, loading, addToRecentlyViewed]);
   
+  // Auto-generate analysis on page load
+  useEffect(() => {
+    if (vehicle && !bannerAnalysis) {
+      const generateAnalysis = async () => {
+        setIsAnalyzing(true);
+        try {
+          let result: BuyerAnalysis;
+          
+          // Force fallback analysis for the Porsche 911 to use our enhanced enthusiast analysis
+          if (vehicle.id === 'ebay-porsche-1') {
+            console.log('Using enhanced analysis for Porsche 911 Carrera 2');
+            result = getFallbackAnalysis(vehicle as Vehicle);
+          }
+          // Use Gemini API if available, otherwise fall back to pre-generated analysis
+          else if (isGeminiAvailable()) {
+            result = await generateBuyerAnalysis(vehicle as Vehicle);
+          } else {
+            console.warn('Gemini API unavailable, using fallback analysis');
+            result = getFallbackAnalysis(vehicle as Vehicle);
+          }
+          
+          setBannerAnalysis(result);
+        } catch (error) {
+          console.error('Error generating analysis:', error);
+          // If API call fails, use fallback analysis as backup
+          const fallbackResult = getFallbackAnalysis(vehicle as Vehicle);
+          setBannerAnalysis(fallbackResult);
+        } finally {
+          setIsAnalyzing(false);
+        }
+      };
+      
+      generateAnalysis();
+    }
+  }, [vehicle, bannerAnalysis, preloadedAnalysis]);
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -67,7 +109,7 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Vehicle Not Found</h1>
-          <p className="text-gray-600 mb-6">The vehicle you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 mb-6">The vehicle you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <Link href="/search" className="btn btn-primary">
             Back to Search
           </Link>
@@ -76,65 +118,24 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
     );
   }
   
-  // Analysis state for the banner
-  const [bannerAnalysis, setBannerAnalysis] = useState<BuyerAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
-  const generateAnalysis = async () => {
-    setIsAnalyzing(true);
-    try {
-      let result: BuyerAnalysis;
-      
-      // Force fallback analysis for the Porsche 911 to use our enhanced enthusiast analysis
-      if (vehicle.id === 'ebay-porsche-1') {
-        console.log('Using enhanced analysis for Porsche 911 Carrera 2');
-        result = getFallbackAnalysis(vehicle as Vehicle);
-      }
-      // Use Gemini API if available, otherwise fall back to pre-generated analysis
-      else if (isGeminiAvailable()) {
-        result = await generateBuyerAnalysis(vehicle as Vehicle);
-      } else {
-        console.warn('Gemini API unavailable, using fallback analysis');
-        result = getFallbackAnalysis(vehicle as Vehicle);
-      }
-      
-      setBannerAnalysis(result);
-    } catch (error) {
-      console.error('Error generating analysis:', error);
-      // If API call fails, use fallback analysis as backup
-      const fallbackResult = getFallbackAnalysis(vehicle as Vehicle);
-      setBannerAnalysis(fallbackResult);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-  
   // Determine if recommendation is positive when we have an analysis
   const isPositive = bannerAnalysis ? bannerAnalysis.recommendation !== 'avoid' : true;
 
   return (
     <>
-      <Head>
-        <title>{vehicle.year} {vehicle.make} {vehicle.model} | FindMyCar</title>
-        <meta name="description" content={`${vehicle.year} ${vehicle.make} ${vehicle.model} with ${vehicle.mileage?.toLocaleString() || 'N/A'} miles for $${vehicle.price?.toLocaleString() || 'N/A'}`} />
-      </Head>
+      <SEOHead
+        vehicle={vehicle}
+        canonicalUrl={`https://findmycar.app/vehicles/${vehicle.id}`}
+        ogType="product"
+      />
       
       <div className="container mx-auto p-4">
-        <div className="mb-6">
-          <Link href="/search" className="text-primary-600 hover:text-primary-800 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-            Back to Search
-          </Link>
-        </div>
 
         <div className="flex flex-wrap items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </h1>
           <div className="flex space-x-2">
-            <AIInsightButton vehicle={vehicle} />
             <FavoriteButton vehicleId={vehicle.id} />
             <CompareButton vehicleId={vehicle.id} />
           </div>
@@ -144,49 +145,57 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
           {/* Advanced LLM Analysis Banner */}
           <div className="border-l-4 bg-blue-50 border-blue-500">
             {bannerAnalysis ? (
-              // Show analysis results when available
+              // Show simplified AI analysis results 
               <>
                 <div className={`px-6 py-3 text-center font-bold text-lg ${
                   isPositive ? 'text-green-800' : 'text-yellow-800'
                 }`}>
-                  {bannerAnalysis.recommendation.toUpperCase()}
+                  {bannerAnalysis.recommendation.toUpperCase()} - Score: {bannerAnalysis.score}/10
                 </div>
                 <div className={`px-6 pb-4 text-sm leading-relaxed ${
                   isPositive ? 'text-green-700' : 'text-yellow-700'
                 }`}>
-                  <strong>🤖 Vehicle Analysis:</strong> {bannerAnalysis.oneLiner || bannerAnalysis.summary}
+                  <strong>🤖 AI Analysis:</strong> {bannerAnalysis.oneLiner || bannerAnalysis.summary}
+                </div>
+                {/* Simplified TLDR details section */}
+                <div className="px-6 pb-4 grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold text-green-800 mb-2">✅ Top Pros</h4>
+                    <ul className="text-sm text-green-700 space-y-1">
+                      {bannerAnalysis.pros.slice(0, 2).map((pro, index) => (
+                        <li key={index}>• {pro}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-red-800 mb-2">⚠️ Key Considerations</h4>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      {bannerAnalysis.cons.slice(0, 2).map((con, index) => (
+                        <li key={index}>• {con}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </>
             ) : (
-              // Show generate button when no analysis is available
-              <div className="px-6 py-4 flex flex-col sm:flex-row items-center justify-between">
-                <div className="text-blue-700 mb-3 sm:mb-0">
-                  <strong>🤖 Vehicle Analysis:</strong> Get AI-powered enthusiast insights for this vehicle
-                </div>
-                <button
-                  onClick={generateAnalysis}
-                  disabled={isAnalyzing}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>Generate Analysis</>
-                  )}
-                </button>
+              // Show loading state when analysis is being generated
+              <div className="px-6 py-4 flex flex-col items-center justify-center">
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
+                    <p className="text-blue-700 text-sm">Generating AI analysis...</p>
+                  </>
+                ) : (
+                  <p className="text-blue-700 text-sm">Loading vehicle analysis...</p>
+                )}
               </div>
             )}
           </div>
           
           <ImageGallery 
             images={vehicle.images} 
-            alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} 
+            alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+            vehicle={vehicle}
           />
 
           <div className="p-6 border-t border-gray-200">
@@ -199,6 +208,11 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
                   <p className="text-2xl font-bold text-primary-600">
                     ${vehicle.price?.toLocaleString() || 'Contact for Price'}
                   </p>
+                </div>
+                
+                {/* Price Analysis */}
+                <div className="mb-6">
+                  <PriceAnalysisIndicator vehicle={vehicle} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -271,6 +285,7 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
               >
                 View Original Listing
               </a>
+              <AIInsightButton vehicle={vehicle} className="flex-grow md:flex-grow-0" />
               <a
                 href={`https://www.progressive.com/auto/car-insurance-quote/?vehicle=${encodeURIComponent(`${vehicle.year} ${vehicle.make} ${vehicle.model}`)}`}
                 target="_blank"
@@ -282,9 +297,6 @@ export default function VehicleDetail({ vehicle, preloadedAnalysis }: VehicleDet
                 </svg>
                 Need Insurance?
               </a>
-              <Link href="/search" className="btn btn-secondary flex-grow md:flex-grow-0">
-                Back to Search
-              </Link>
             </div>
           </div>
         </div>
@@ -317,12 +329,24 @@ export const getStaticPaths: GetStaticPaths = async () => {
     console.error('Error fetching Hemmings vehicles for static paths:', error);
   }
   
-  // Combine all vehicle IDs
-  const allVehicles = [...featuredVehicles, ...hemmingsVehicles];
+  // Also get BAT vehicles for pre-generation
+  let batVehicles: Vehicle[] = [];
+  try {
+    const { fetchBatVehicles } = await import('@/services/batVehicleApi');
+    batVehicles = await fetchBatVehicles();
+    console.log(`Got ${batVehicles.length} BAT vehicles for static paths`);
+  } catch (error) {
+    console.error('Error fetching BAT vehicles for static paths:', error);
+  }
+  
+  // Combine all vehicle IDs from all sources
+  const allVehicles = [...featuredVehicles, ...hemmingsVehicles, ...batVehicles];
   
   const paths = allVehicles.map((vehicle) => ({
     params: { id: vehicle.id },
   }));
+
+  console.log(`Total vehicles for static paths: ${allVehicles.length} (Featured: ${featuredVehicles.length}, Hemmings: ${hemmingsVehicles.length}, BAT: ${batVehicles.length})`);
 
   return {
     paths,
@@ -375,7 +399,23 @@ export const getStaticProps: GetStaticProps<VehicleDetailProps> = async ({ param
     console.error(`Error fetching Hemmings vehicle with ID ${id}:`, error);
   }
 
-  // If not found in either source, return 404
+  // If not found in Hemmings, check if it's a BAT vehicle
+  try {
+    const { fetchBatVehicleById } = await import('@/services/batVehicleApi');
+    const batVehicle = await fetchBatVehicleById(id);
+    
+    if (batVehicle) {
+      return {
+        props: {
+          vehicle: batVehicle,
+        },
+      };
+    }
+  } catch (error) {
+    console.error(`Error fetching BAT vehicle with ID ${id}:`, error);
+  }
+
+  // If not found in any source, return 404
   return {
     notFound: true,
   };

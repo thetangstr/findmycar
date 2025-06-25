@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SearchFilters as SearchFiltersType, Vehicle } from '@/types';
+import LoadingSpinner from './LoadingSpinner';
 
 interface NaturalLanguageSearchProps {
   onSearch: (filters: SearchFiltersType) => void;
@@ -84,7 +85,7 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({ onSearch,
     <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`}>
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Intelligent Car Search</h2>
       <p className="text-gray-600 mb-4">
-        Describe your ideal car, e.g., "A reliable BMW sedan under $40k with a manual transmission."
+        Describe your ideal car, e.g., &quot;A reliable BMW sedan under $40k with a manual transmission.&quot;
       </p>
 
       <div className="flex flex-col md:flex-row gap-3">
@@ -100,9 +101,16 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({ onSearch,
         <button
           onClick={handleSearch}
           disabled={isProcessing || !query.trim()}
-          className="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 transition"
+          className="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 transition inline-flex items-center"
         >
-          {isProcessing ? 'Searching...' : 'Search'}
+          {isProcessing ? (
+            <>
+              <LoadingSpinner size="sm" color="white" className="mr-2" />
+              Searching...
+            </>
+          ) : (
+            'Search'
+          )}
         </button>
       </div>
 
@@ -116,7 +124,7 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({ onSearch,
             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
           />
           <label htmlFor="show-thinking-checkbox" className="ml-2 block text-sm text-gray-900">
-            Show AI's thinking
+            Show AI&apos;s thinking
           </label>
         </div>
       </div>

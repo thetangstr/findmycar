@@ -70,7 +70,7 @@ export default function SavedSearches() {
           </svg>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">No Saved Searches</h2>
           <p className="text-gray-600 mb-6">
-            You haven't saved any searches yet. When searching for vehicles, click "Save Search" to save your search criteria for future use.
+            You haven&apos;t saved any searches yet. When searching for vehicles, click &quot;Save Search&quot; to save your search criteria for future use.
           </p>
           <Link href="/search" className="btn btn-primary">
             Go to Search

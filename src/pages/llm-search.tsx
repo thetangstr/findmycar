@@ -35,7 +35,7 @@ export default function LLMSearch() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">AI-Powered Search</h1>
         <p className="text-gray-600">
-          Describe what you're looking for in natural language, and our AI will find the best matches for you.
+          Describe what you&apos;re looking for in natural language, and our AI will find the best matches for you.
         </p>
       </div>
       
@@ -108,7 +108,7 @@ export default function LLMSearch() {
               {results.length} {results.length === 1 ? 'Vehicle' : 'Vehicles'} Found
             </h2>
             <p className="text-gray-600 mt-1">
-              Based on your search: "{query}"
+              Based on your search: &quot;{query}&quot;
             </p>
           </div>
           

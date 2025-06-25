@@ -85,7 +85,7 @@ export default function Alerts() {
           </svg>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">No Alerts Set Up</h2>
           <p className="text-gray-600 mb-6">
-            You haven't set up any email alerts yet. Create alerts to get notified when new vehicles matching your criteria are listed.
+            You haven&apos;t set up any email alerts yet. Create alerts to get notified when new vehicles matching your criteria are listed.
           </p>
           <Link href="/search" className="btn btn-primary">
             Search and Create Alert

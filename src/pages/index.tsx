@@ -8,6 +8,7 @@ import Hero from '@/components/home/Hero';
 import HowItWorks from '@/components/home/HowItWorks';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import PartnerSection from '@/components/home/PartnerSection';
+import SEOHead from '@/components/SEOHead';
 
 import { getHemmingsListings } from '@/services/scraperService';
 import { GetStaticProps } from 'next';
@@ -19,11 +20,12 @@ interface HomeProps {
 export default function Home({ featuredVehicles }: HomeProps) {
   return (
     <div>
-      <Head>
-        <title>FindMyCar | AI-Powered Car Search</title>
-        <meta name="description" content="Find your next car with AI-powered search" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <SEOHead
+        title="FindMyCar | AI-Powered Vehicle Search & Comparison"
+        description="Find your perfect vehicle with AI-powered search, compare prices across multiple sources, and get expert buyer insights. Search cars from BringATrailer, Hemmings, and more."
+        keywords={['car search', 'ai vehicle finder', 'auto comparison', 'bring a trailer', 'hemmings', 'classic cars', 'vehicle marketplace']}
+        canonicalUrl="https://findmycar.app"
+      />
 
       <main>
         <Hero />

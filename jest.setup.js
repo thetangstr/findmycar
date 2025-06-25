@@ -1,5 +1,6 @@
 // Import Jest DOM extensions
 require('@testing-library/jest-dom');
+const React = require('react');
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
@@ -19,9 +20,9 @@ jest.mock('next/router', () => ({
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props) => {
+  default: function MockImage(props) {
     // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...props} />;
+    return React.createElement('img', props);
   },
 }));
 

@@ -7,15 +7,15 @@ export const mockVehicles: Vehicle[] = [
     make: 'Porsche',
     model: '911 Carrera 2 Cabriolet',
     year: 1990,
-    price: 59000,
+    price: 190000,
     mileage: 80948,
     exteriorColor: 'Grand Prix White',
     interiorColor: 'Navy',
     fuelType: 'Gasoline',
-    transmission: 'Automatic',
+    transmission: '5-Speed Manual',
     engine: '3.6L Naturally Aspirated H6',
     vin: 'WP0CB2963LS471479',
-    description: 'This classic 1990 Porsche 911 Carrera 2 Cabriolet features a timeless Grand Prix White exterior with Navy blue interior. With 80,948 miles, this 964-generation 911 represents the perfect blend of classic air-cooled Porsche engineering with modern refinements. The car features the desirable 3.6L flat-six engine paired with an automatic transmission, allowing for both spirited driving and comfortable cruising. This well-maintained example comes with service history and presents beautifully with its iconic lines and proportions. The power-operated convertible top functions perfectly, making this an ideal fair-weather sports car for enjoying the Porsche driving experience.',
+    description: 'This classic 1990 Porsche 911 Carrera 2 Cabriolet features a timeless Grand Prix White exterior with Navy blue interior. With 80,948 miles, this 964-generation 911 represents the perfect blend of classic air-cooled Porsche engineering with modern refinements. The car features the desirable 3.6L flat-six engine paired with a coveted 5-speed manual transmission, providing the pure, engaging driving experience that enthusiasts seek. This well-maintained example comes with service history and presents beautifully with its iconic lines and proportions. The power-operated convertible top functions perfectly, making this an ideal fair-weather sports car for experiencing the true essence of air-cooled Porsche driving dynamics.',
     features: [
       'Power Convertible Top',
       'Air-Cooled 3.6L Engine',
@@ -42,11 +42,11 @@ export const mockVehicles: Vehicle[] = [
     url: 'https://www.ebay.com/itm/304803308454',
     bodyStyle: 'Coupe',
     appreciationData: {
-      purchasePrice: 134900,
-      fiveYearForecast: 122000,
-      tenYearForecast: 145000,
-      trending: 'stable',
-      annualAppreciationRate: 0.8
+      purchasePrice: 190000,
+      fiveYearForecast: 220000,
+      tenYearForecast: 275000,
+      trending: 'up',
+      annualAppreciationRate: 3.2
     },
     vehicleHistory: 'Clean title, no accidents, 2 previous owners. All maintenance performed at authorized Porsche dealership.',
     sellerNotes: 'One of the finest examples of a 992-generation 911 Carrera S available. Exceptionally well maintained and ready for its new owner.'
@@ -427,6 +427,142 @@ export const mockVehicles: Vehicle[] = [
     listingDate: '2023-11-18',
     source: 'Audi Dealership',
     url: 'https://example.com/audi-q5-2021'
+  },
+  // Additional 1990-1994 Porsche 911s for demo (red, black, blue)
+  {
+    id: 'porsche-red-1',
+    make: 'Porsche',
+    model: '911 Carrera',
+    year: 1991,
+    price: 65000,
+    mileage: 75000,
+    exteriorColor: 'Guards Red',
+    interiorColor: 'Black',
+    fuelType: 'Gasoline',
+    transmission: 'Manual',
+    engine: '3.6L Naturally Aspirated H6',
+    vin: 'WP0AB2961MS471480',
+    description: 'Classic 1991 Porsche 911 Carrera in iconic Guards Red. This 964-generation 911 features the desirable 3.6L air-cooled flat-six engine with a 5-speed manual transmission. Well-maintained example with service records. Perfect for collectors and enthusiasts who appreciate authentic Porsche heritage.',
+    features: [
+      'Air-Cooled 3.6L Engine',
+      '5-Speed Manual Transmission',
+      'Leather Interior',
+      'Power Windows',
+      'Air Conditioning',
+      'Central Locking',
+      'Original Porsche Wheels',
+      'Sport Seats',
+      'Limited-Slip Differential',
+      'Period-Correct Features'
+    ],
+    images: [
+      '/images/other_porsche/red.jpg'
+    ],
+    location: 'Los Angeles, CA',
+    dealer: 'Classic Porsche Specialists',
+    listingDate: '2023-12-02',
+    source: 'Specialist Dealer',
+    url: 'https://example.com/porsche-911-red-1991',
+    bodyStyle: 'Coupe',
+    appreciationData: {
+      purchasePrice: 65000,
+      fiveYearForecast: 78000,
+      tenYearForecast: 95000,
+      trending: 'up',
+      annualAppreciationRate: 3.2
+    },
+    vehicleHistory: 'Clean title, well documented service history, 3 previous owners.',
+    sellerNotes: 'Excellent example of a classic air-cooled 911. Recent major service completed.'
+  },
+  {
+    id: 'porsche-black-1',
+    make: 'Porsche',
+    model: '911 Turbo',
+    year: 1993,
+    price: 89000,
+    mileage: 68000,
+    exteriorColor: 'Black',
+    interiorColor: 'Tan',
+    fuelType: 'Gasoline',
+    transmission: 'Manual',
+    engine: '3.3L Turbo H6',
+    vin: 'WP0AC2960PS471481',
+    description: 'Stunning 1993 Porsche 911 Turbo in classic black. This 964 Turbo features the legendary 3.3L turbocharged flat-six engine producing 315hp. Rare manual transmission and tan leather interior make this a highly desirable collector car. Excellent condition with comprehensive maintenance records.',
+    features: [
+      'Turbocharged 3.3L Engine',
+      '5-Speed Manual Transmission',
+      'Tan Leather Interior',
+      'Turbo Body Styling',
+      'Upgraded Brakes',
+      'Sport Suspension',
+      'Whale Tail Spoiler',
+      'Power Seats',
+      'Air Conditioning',
+      'Original Tool Kit'
+    ],
+    images: [
+      '/images/other_porsche/black.webp'
+    ],
+    location: 'San Diego, CA',
+    dealer: 'Turbo Specialists',
+    listingDate: '2023-12-03',
+    source: 'Specialist Dealer',
+    url: 'https://example.com/porsche-911-turbo-black-1993',
+    bodyStyle: 'Coupe',
+    appreciationData: {
+      purchasePrice: 89000,
+      fiveYearForecast: 110000,
+      tenYearForecast: 140000,
+      trending: 'up',
+      annualAppreciationRate: 4.1
+    },
+    vehicleHistory: 'Single owner for last 15 years, complete service records, garage kept.',
+    sellerNotes: 'One of the finest 964 Turbos available. Numbers matching, exceptional condition.'
+  },
+  {
+    id: 'porsche-blue-1',
+    make: 'Porsche',
+    model: '911 Carrera 4',
+    year: 1994,
+    price: 72000,
+    mileage: 82000,
+    exteriorColor: 'Midnight Blue',
+    interiorColor: 'Black',
+    fuelType: 'Gasoline',
+    transmission: 'Manual',
+    engine: '3.6L Naturally Aspirated H6',
+    vin: 'WP0AA2963RS471482',
+    description: 'Beautiful 1994 Porsche 911 Carrera 4 in Midnight Blue metallic. This all-wheel-drive 964 combines the classic air-cooled engine with enhanced traction and stability. Final year of the 964 generation with desirable updates. Manual transmission and well-preserved condition make this an excellent investment.',
+    features: [
+      'All-Wheel Drive',
+      'Air-Cooled 3.6L Engine',
+      '5-Speed Manual Transmission',
+      'Final Year 964',
+      'Updated Suspension',
+      'Power Steering',
+      'ABS Brakes',
+      'Electric Sunroof',
+      'Heated Seats',
+      'Service Records'
+    ],
+    images: [
+      '/images/other_porsche/blue.jpg'
+    ],
+    location: 'Newport Beach, CA',
+    dealer: 'European Auto Classics',
+    listingDate: '2023-12-04',
+    source: 'Classic Dealer',
+    url: 'https://example.com/porsche-911-c4-blue-1994',
+    bodyStyle: 'Coupe',
+    appreciationData: {
+      purchasePrice: 72000,
+      fiveYearForecast: 85000,
+      tenYearForecast: 105000,
+      trending: 'up',
+      annualAppreciationRate: 3.8
+    },
+    vehicleHistory: 'Two previous owners, documented maintenance, no accidents.',
+    sellerNotes: 'Rare final year 964 C4 in exceptional condition. A true enthusiast car.'
   }
 ];
 

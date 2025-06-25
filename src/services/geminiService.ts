@@ -160,31 +160,31 @@ export const getFallbackAnalysis = (vehicle: Vehicle): BuyerAnalysis => {
 
   // Enhanced analysis based on specific vehicle IDs to match banner recommendations
   if (vehicle.id === 'ebay-porsche-1') {
-    // Specific analysis for the Porsche 911 Carrera 2 Cabriolet
+    // Specific analysis for the Porsche 911 Carrera 2 Cabriolet with Manual Transmission
     return {
       recommendation: 'buy',
-      score: 8.5,
-      oneLiner: "Highly collectible 964-era Porsche 911 Cabriolet in desirable Grand Prix White - exceptional value proposition.",
+      score: 9.2,
+      oneLiner: "Exceptional 964-era Porsche 911 Cabriolet with coveted manual transmission - a true enthusiast's dream in collector-grade condition.",
       pros: [
-        'Iconic air-cooled 964 Carrera 2 Cabriolet in desirable color combination',
-        'Grand Prix White over Navy is among the most sought-after color combinations',
-        '964 generation (1989-1994) increasingly recognized as a collector sweet spot',
-        'Classic air-cooled driving experience with modern usability',
-        'Prices rising steadily for well-preserved examples',
-        '$59,000 price point represents significant potential upside',
-        'Final generation with true classic 911 proportions and driving feel'
+        'Coveted 5-speed manual transmission - the gold standard for driving engagement',
+        'Iconic air-cooled 964 Carrera 2 Cabriolet in desirable Grand Prix White',
+        'Classic G50 gearbox known for precision and durability',
+        '964 generation represents peak air-cooled evolution with modern amenities',
+        'Manual transmission commands significant premium over automatic variants',
+        'Rare combination: Cabriolet body style with manual transmission',
+        'True purist driving experience with direct mechanical connection'
       ],
       cons: [
-        'Automatic transmission less desirable than the G50 5-speed manual',
-        'Requires specialist Porsche maintenance knowledge',
-        'Some age-appropriate wear as expected for a 30+ year-old vehicle',
-        'Consider budgeting for preventative maintenance'
+        'Manual transmission requires more driver skill and attention',
+        'Requires specialist Porsche maintenance knowledge and expertise',
+        'Higher insurance costs due to collector value and manual transmission',
+        'Limited availability of experienced manual transmission technicians'
       ],
-      summary: "This 1990 Porsche 911 Carrera 2 Cabriolet represents a compelling opportunity for both enthusiasts and collectors. The 964 generation combines the classic air-cooled character with modern amenities and has seen steady appreciation as the market recognizes its significance in Porsche's history.",
-      conditionAssessment: "The vehicle presents well in its Grand Prix White finish, showing good panel gaps and consistent paint. The navy interior appears well-preserved with minimal wear on critical surfaces. With 80,948 miles, this example has been driven enough to ensure mechanical health while not being excessively used. The convertible top mechanism is reported to be fully functional - a critical factor for cabriolet values.",
-      collectorValue: "The 964-generation Carrera 2 Cabriolet is highly collectible, representing the sweet spot between classic feel and modern drivability. White over navy is among the most desirable color combinations. While the automatic transmission is less sought after than the manual, it's becoming increasingly accepted by collectors seeking a more relaxed driving experience. Original, unmodified examples like this are becoming increasingly difficult to find.",
-      priceAnalysis: "At $59,000, this represents excellent value in today's market. Similar condition 964 Cabriolets are regularly commanding $65,000-$85,000 depending on options and transmission. The price point positions this as an accessible entry into Porsche air-cooled ownership with significant appreciation potential as these continue to be recognized for their historical importance.",
-      marketPosition: "This 964 Cabriolet sits in the early phase of the collector appreciation curve, following the pattern previously seen with earlier 911 generations. While 964 prices haven't yet reached the heights of longhood models, market trends suggest continued upward momentum for well-preserved examples, particularly as they cross the 30+ year mark."
+      summary: "This 1990 Porsche 911 Carrera 2 Cabriolet with 5-speed manual transmission represents the pinnacle of air-cooled Porsche ownership. The manual gearbox transforms this from a beautiful classic into a true driver's car, offering the pure, unfiltered connection between driver and machine that defines the Porsche experience.",
+      conditionAssessment: "The vehicle presents beautifully in Grand Prix White with navy interior - a timeless and highly sought-after color combination. With 80,948 miles, this example shows honest use while maintaining excellent condition. The manual transmission and clutch operation should be verified by a qualified Porsche specialist to ensure proper function.",
+      collectorValue: "Manual transmission 964 Cabriolets are increasingly rare and command significant premiums over automatic variants. The combination of air-cooled engine, manual gearbox, and convertible top makes this among the most desirable configurations for both driving enthusiasts and collectors. This specification is becoming increasingly difficult to find in good condition.",
+      priceAnalysis: "At $190,000, this reflects the current market premium for manual transmission air-cooled 911s. Manual variants typically command 15-25% more than automatics, and this pricing aligns with recent sales of comparable manual 964 Cabriolets. The investment in a manual car often proves worthwhile for both driving pleasure and resale value.",
+      marketPosition: "Manual transmission 964s have shown stronger appreciation than their automatic counterparts, as collectors and enthusiasts specifically seek the engaging driving experience only a manual can provide. This positions the car in the top tier of the 964 Cabriolet market with excellent long-term prospects."
     };
   }
   
