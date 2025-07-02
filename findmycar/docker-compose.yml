@@ -17,6 +17,6 @@ services:
 
     volumes:
       - ./data:/app/data
-      - DATABASE_URL=sqlite:///./findmycar.db
+
     env_file:
       - /volume1/docker/env_files/fmc.env
