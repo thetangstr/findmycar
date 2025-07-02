@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  autonavigator:
+    build: .
+    container_name: autonavigator
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    environment:
+      - DATABASE_URL=sqlite:///./data/findmycar.db
+      - PYTHONUNBUFFERED=1
+      - EBAY_CLIENT_ID=${EBAY_CLIENT_ID:-}
+      - EBAY_CLIENT_SECRET=${EBAY_CLIENT_SECRET:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AUTO_DEV_API_KEY=${AUTO_DEV_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
