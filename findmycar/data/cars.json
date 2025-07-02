@@ -1,0 +1,24 @@
+[
+    {
+        "itemId": "123456789",
+        "title": "2023 Tesla Model 3",
+        "sellingStatus": {
+            "currentPrice": {
+                "__value__": "35000.00"
+            }
+        },
+        "location": "Los Angeles, CA",
+        "galleryURL": "https://i.ebayimg.com/images/g/gGMAAOSw~g5j~0g3/s-l1600.jpg"
+    },
+    {
+        "itemId": "987654321",
+        "title": "2022 Ford Mustang GT",
+        "sellingStatus": {
+            "currentPrice": {
+                "__value__": "45000.00"
+            }
+        },
+        "location": "New York, NY",
+        "galleryURL": "https://i.ebayimg.com/images/g/gGMAAOSw~g5j~0g3/s-l1600.jpg"
+    }
+]
