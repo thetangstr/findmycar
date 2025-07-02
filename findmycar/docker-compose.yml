@@ -10,11 +10,13 @@ services:
     environment:
       - DATABASE_URL=sqlite:///./data/findmycar.db
       - PYTHONUNBUFFERED=1
-      - EBAY_CLIENT_ID=${EBAY_CLIENT_ID:-}
-      - EBAY_CLIENT_SECRET=${EBAY_CLIENT_SECRET:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - AUTO_DEV_API_KEY=${AUTO_DEV_API_KEY:-}
+      - EBAY_CLIENT_ID=KailorTa-fmc-PRD-a8e70e47c-c916c494
+      - EBAY_CLIENT_SECRET=PRD-8e70e47c45e6-8603-4564-9283-bd68
+
     volumes:
       - ./data:/app/data
+      - DATABASE_URL=sqlite:///./findmycar.db
     env_file:
-      - .env
+      - /volume1/docker/env_files/fmc.env
