@@ -247,3 +247,5 @@ class VehicleValuation:
 
 # Singleton instance
 valuation_service = VehicleValuation()
+
+console.log("Hello, world!"); 
