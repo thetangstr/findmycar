@@ -3,28 +3,32 @@
 .gitignore
 
 # Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 .Python
-pip-log.txt
-pip-delete-this-directory.txt
-.tox
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.venv
-venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Database files (will be mounted as volume)
-*.db
-*.sqlite
-*.sqlite3
+# Virtual environments
+venv/
+env/
+ENV/
 
 # IDE
 .vscode/
@@ -35,29 +39,49 @@ venv/
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Application specific
+# Logs
 logs/
-data/
+*.log
+
+# Database (will be in mounted volume)
+*.db
+*.sqlite
+
+# Test files
 test_*.py
 *_test.py
-app.log
+tests/
+
+# Documentation
+*.md
+docs/
+
+# Development files
+debug_*.py
+quick_*.py
+simple_*.py
 
 # Node modules (if any)
 node_modules/
 
+# Environment files (sensitive)
+.env
+.env.local
+.env.production
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
 # Temporary files
+tmp/
+temp/
 *.tmp
 *.temp
-.pytest_cache/
 
-# Documentation
-README.md
-*.md
-docs/
+# Screenshots and test artifacts
+screenshots/
+test_results/

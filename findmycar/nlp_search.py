@@ -2,6 +2,7 @@ import re
 import openai
 from typing import Dict, Optional
 from config import OPENAI_API_KEY
+from chassis_codes import parse_chassis_code
 
 def parse_natural_language_query(query: str) -> Dict[str, Optional[str]]:
     """
@@ -20,21 +21,40 @@ def parse_natural_language_query(query: str) -> Dict[str, Optional[str]]:
         'body_style': None,
         'fuel_type': None,
         'transmission': None,
+        'sources': None,  # Add sources filter
         'parsed_query': query
     }
     
-    # Rule-based parsing for common patterns
-    filters.update(_rule_based_parsing(query))
+    # Check for chassis codes first (highest priority)
+    chassis_info = parse_chassis_code(query)
+    if chassis_info.get('found'):
+        filters['make'] = chassis_info['make']
+        filters['model'] = chassis_info['model']
+        filters['year_min'] = chassis_info['year_min']
+        filters['year_max'] = chassis_info['year_max']
+        filters['chassis_code'] = chassis_info['chassis_code']
+        filters['variant'] = chassis_info.get('variant', '')
+        # Log the chassis code detection
+        import logging
+        logging.info(f"🎯 Chassis code detected: {chassis_info['chassis_code']} = {chassis_info['year_min']}-{chassis_info['year_max']} {chassis_info['make']} {chassis_info['model']} {chassis_info.get('variant', '')}")
     
-    # Use AI for more complex parsing if OpenAI API is available
-    try:
-        ai_filters = _ai_parsing(query)
-        # Merge AI results, preferring rule-based results when available
-        for key, value in ai_filters.items():
-            if filters.get(key) is None and value is not None:
-                filters[key] = value
-    except Exception as e:
-        print(f"AI parsing failed, using rule-based only: {e}")
+    # Rule-based parsing for common patterns (don't override chassis code results)
+    rule_based = _rule_based_parsing(query)
+    for key, value in rule_based.items():
+        # Only update if not already set by chassis code
+        if filters.get(key) is None and value is not None:
+            filters[key] = value
+    
+    # AI parsing is currently disabled due to outdated OpenAI API
+    # TODO: Update to use new OpenAI API when needed
+    # try:
+    #     ai_filters = _ai_parsing(query)
+    #     # Merge AI results, preferring existing results when available
+    #     for key, value in ai_filters.items():
+    #         if filters.get(key) is None and value is not None:
+    #             filters[key] = value
+    # except Exception as e:
+    #     print(f"AI parsing failed, using rule-based only: {e}")
     
     return filters
 
@@ -44,6 +64,46 @@ def _rule_based_parsing(query: str) -> Dict[str, Optional[str]]:
     """
     filters = {}
     query_lower = query.lower()
+    
+    # Extract source filters first (e.g., "source:ebay" or "from:cargurus")
+    source_patterns = [
+        r'source:(\w+)',
+        r'from:(\w+)',
+        r'on:(\w+)'
+    ]
+    
+    detected_sources = []
+    for pattern in source_patterns:
+        matches = re.findall(pattern, query_lower)
+        for match in matches:
+            source = match.lower()
+            # Map common variations to actual source names
+            source_map = {
+                'ebay': 'ebay',
+                'carmax': 'carmax',
+                'cargurus': 'cargurus',
+                'bat': 'bringatrailer',
+                'bringatrailer': 'bringatrailer',
+                'truecar': 'truecar',
+                'cars': 'cars.com',
+                'carscom': 'cars.com',
+                'cars.com': 'cars.com',
+                'autodev': 'auto.dev',
+                'auto.dev': 'auto.dev'
+            }
+            if source in source_map:
+                detected_sources.append(source_map[source])
+                # Remove the source syntax from query for further parsing
+                query_lower = re.sub(f'{pattern}', '', query_lower)
+    
+    if detected_sources:
+        filters['sources'] = list(set(detected_sources))  # Remove duplicates
+    
+    # Clean the query by removing source syntax
+    cleaned_query = query
+    for pattern in source_patterns:
+        cleaned_query = re.sub(f'{pattern}', '', cleaned_query, flags=re.IGNORECASE)
+    filters['cleaned_query'] = cleaned_query.strip()
     
     # Extract years first (only match realistic car years: 1990-2030)
     year_patterns = [

@@ -1,22 +1,26 @@
 version: '3.8'
 
 services:
-  autonavigator:
+  cargpt:
     build: .
-    container_name: autonavigator
+    container_name: cargpt
     restart: unless-stopped
     ports:
-      - "3100:3100"
+      - "8000:8000"
     environment:
       - DATABASE_URL=sqlite:///./data/findmycar.db
       - PYTHONUNBUFFERED=1
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - AUTO_DEV_API_KEY=${AUTO_DEV_API_KEY:-}
-      - EBAY_CLIENT_ID=KailorTa-fmc-PRD-a8e70e47c-c916c494
-      - EBAY_CLIENT_SECRET=PRD-8e70e47c45e6-8603-4564-9283-bd68
-
+      - EBAY_CLIENT_ID=${EBAY_CLIENT_ID:-KailorTa-fmc-PRD-a8e70e47c-c916c494}
+      - EBAY_CLIENT_SECRET=${EBAY_CLIENT_SECRET:-PRD-8e70e47c45e6-8603-4564-9283-bd68}
+      - CHROME_BIN=/usr/bin/google-chrome
+      - CHROME_OPTIONS=--headless --no-sandbox --disable-dev-shm-usage --disable-gpu
     volumes:
       - ./data:/app/data
-
-    env_file:
-      - /volume1/docker/env_files/fmc.env
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

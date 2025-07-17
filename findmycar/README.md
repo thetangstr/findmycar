@@ -1,16 +1,18 @@
-# AutoNavigator - Unified Car Search & Acquisition Platform
+# CarGPT - AI-Powered Vehicle Discovery Platform
 
-AutoNavigator is a comprehensive web application that simplifies the car buying experience by aggregating vehicle listings from eBay Motors and providing AI-powered insights, pricing analysis, and communication assistance.
+CarGPT is a comprehensive web application that simplifies the car buying experience by aggregating vehicle listings from multiple sources including eBay Motors, CarMax, and Bring a Trailer. It provides AI-powered insights, pricing analysis, and communication assistance.
 
 ## 🚀 Features Implemented
 
 ### ✅ Core Features (All Complete)
-1. **eBay Motors Integration** - Modern Browse API integration (migrated from deprecated Finding API)
+1. **Multi-Source Integration** - eBay Motors API, CarMax scraping, Bring a Trailer auctions
 2. **Dual Search Interface** - Natural language queries + traditional filters
 3. **Vehicle Valuation** - Market price analysis with deal ratings (Great Deal, Good Deal, Fair Price, High Price)
 4. **AI-Powered Questions** - Contextual buyer questions generated for each vehicle
 5. **Communication Assistance** - AI-generated inquiry and negotiation message templates
 6. **Advanced Search** - Filter by make, model, year, price, location, and more
+7. **Health Monitoring** - Real-time data source monitoring and testing framework
+8. **Favorites System** - Save and manage favorite vehicles
 
 ### 🎯 Key Capabilities
 - **Smart Search**: Type natural queries like "Honda Civic 2020 under $25k" or "truck for construction business"
@@ -21,9 +23,13 @@ AutoNavigator is a comprehensive web application that simplifies the car buying 
 
 ## 🛠 Technology Stack
 
-- **Backend**: FastAPI + SQLAlchemy + SQLite
+- **Backend**: FastAPI + SQLAlchemy + SQLite/PostgreSQL
 - **Frontend**: Bootstrap 4 + Vanilla JavaScript
 - **APIs**: eBay Browse API, OpenAI (optional), Vehicle valuation services
+- **Web Scraping**: Selenium for CarMax and Bring a Trailer
+- **Caching**: Redis for performance and rate limiting
+- **Background Tasks**: Celery for async processing
+- **Monitoring**: Health checks and data source monitoring
 - **AI/ML**: Natural language processing for search queries and question generation
 
 ## 🔧 Setup & Installation
@@ -87,7 +93,9 @@ AutoNavigator is a comprehensive web application that simplifies the car buying 
 - Advanced negotiation coaching
 - Financing and insurance integrations
 - Mobile app versions
-- Multi-source aggregation (Cars.com, Autotrader, etc.)
+- Additional data sources (Cars.com, Autotrader, etc.)
+- Enhanced AI features for market predictions
+- Advanced analytics and reporting
 
 ## 📁 Project Structure
 
@@ -97,6 +105,12 @@ findmycar/
 ├── database.py          # SQLAlchemy models
 ├── schemas.py           # Pydantic schemas
 ├── ebay_client.py       # eBay Browse API integration
+├── carmax_client.py     # CarMax web scraping
+├── bat_client.py        # Bring a Trailer scraping
+├── cache.py             # Redis caching and rate limiting
+├── tasks.py             # Celery background tasks
+├── health_monitor.py    # Data source health monitoring
+├── test_framework.py    # Comprehensive testing framework
 ├── nlp_search.py        # Natural language processing
 ├── valuation.py         # Vehicle pricing analysis
 ├── ai_questions.py      # AI question generation
@@ -109,12 +123,14 @@ findmycar/
 
 ## 🏆 Implementation Highlights
 
-This implementation successfully delivers all core features from the original PRD:
+This implementation successfully delivers all core features and has been significantly enhanced:
 
-- **Modernized API**: Migrated from deprecated eBay Finding API to Browse API
+- **Multi-Source Aggregation**: Integrated eBay Motors, CarMax, and Bring a Trailer
 - **Intelligent Search**: Combined rule-based and AI-powered natural language processing
 - **Market Intelligence**: Implemented vehicle valuation with deal rating system
 - **User Empowerment**: AI-generated questions help buyers ask the right questions
 - **Communication Tools**: Professional message templates for seller outreach
+- **Production Ready**: Health monitoring, caching, background tasks, and comprehensive testing
+- **Robust Architecture**: Scalable design with proper error handling and monitoring
 
-The platform provides a solid foundation for future enhancements and demonstrates a complete end-to-end car buying assistance solution.
+The platform provides a solid foundation for future enhancements and demonstrates a complete end-to-end car buying assistance solution with enterprise-grade reliability.

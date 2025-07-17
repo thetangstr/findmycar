@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Progress - CarGPT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/styles.css" rel="stylesheet">
+    <style>
+        .progress-container {
+            margin: 20px 0;
+        }
+        .source-progress {
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .source-progress.completed {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .source-progress.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .source-progress.active {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .search-results {
+            margin-top: 30px;
+        }
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        .search-summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-starting {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-active {
+            background-color: #cce5ff;
+            color: #0056b3;
+        }
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car"></i> CarGPT
+            </a>
+            <span class="navbar-text">
+                AI-Powered Vehicle Discovery & Valuation Platform
+            </span>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Search Summary -->
+        <div class="search-summary">
+            <h2>🔍 Searching for: <span id="search-query">{{ query }}</span></h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Sources:</strong> <span id="search-sources">{{ sources|join(', ') }}</span></p>
+                    <p><strong>Filters:</strong> <span id="search-filters">{{ filters_text }}</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Status:</strong> <span id="overall-status" class="status-badge status-starting">Starting...</span></p>
+                    <p><strong>Progress:</strong> <span id="overall-progress">0/{{ sources|length }}</span> sources completed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="progress-container">
+            <div class="progress" style="height: 25px;">
+                <div id="overall-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Source Progress -->
+        <div id="source-progress-container">
+            {% for source in sources %}
+            <div id="source-{{ source }}" class="source-progress">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5>
+                        <span class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></span>
+                        {{ source.title() }}
+                    </h5>
+                    <span class="status-badge status-starting">Pending</span>
+                </div>
+                <div class="mt-2">
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">Waiting to start...</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Search Results -->
+        <div id="search-results" class="search-results" style="display: none;">
+            <h3>Search Results</h3>
+            <div id="results-container">
+                <!-- Results will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Auto-redirect when complete -->
+        <div id="redirect-notice" class="alert alert-info mt-4" style="display: none;">
+            <i class="fas fa-info-circle"></i> 
+            Search completed! <a href="#" id="view-results-btn" class="btn btn-primary btn-sm ml-2">View Results</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class SearchProgressTracker {
+            constructor(sessionId) {
+                this.sessionId = sessionId;
+                this.socket = null;
+                this.totalSources = {{ sources|length }};
+                this.completedSources = 0;
+                this.searchResults = null;
+                this.connectWebSocket();
+            }
+
+            connectWebSocket() {
+                const wsUrl = `ws://localhost:8601/ws/progress/${this.sessionId}`;
+                this.socket = new WebSocket(wsUrl);
+                
+                this.socket.onopen = () => {
+                    console.log('WebSocket connected');
+                };
+                
+                this.socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    this.handleProgressUpdate(data);
+                };
+                
+                this.socket.onclose = () => {
+                    console.log('WebSocket disconnected');
+                };
+                
+                this.socket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+            }
+
+            handleProgressUpdate(data) {
+                console.log('Progress update:', data);
+                
+                if (data.type === 'search_progress') {
+                    this.updateOverallProgress(data.data);
+                } else if (data.type === 'search_error') {
+                    this.handleSearchError(data.data);
+                }
+            }
+
+            updateOverallProgress(progress) {
+                // Update overall status
+                const statusEl = document.getElementById('overall-status');
+                const progressEl = document.getElementById('overall-progress');
+                const progressBar = document.getElementById('overall-progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                this.completedSources = progress.completed_sources;
+                const percentage = Math.round((this.completedSources / this.totalSources) * 100);
+                
+                progressEl.textContent = `${this.completedSources}/${this.totalSources}`;
+                progressBar.style.width = `${percentage}%`;
+                progressText.textContent = `${percentage}%`;
+                
+                // Update status badge
+                if (progress.status === 'starting') {
+                    statusEl.className = 'status-badge status-starting';
+                    statusEl.textContent = 'Starting...';
+                } else if (progress.status === 'finished') {
+                    statusEl.className = 'status-badge status-completed';
+                    statusEl.textContent = 'Completed';
+                    progressBar.classList.remove('progress-bar-animated');
+                    this.showRedirectNotice(progress);
+                } else {
+                    statusEl.className = 'status-badge status-active';
+                    statusEl.textContent = 'Searching...';
+                }
+                
+                // Update current source
+                if (progress.current_source && progress.current_source !== 'all') {
+                    this.updateSourceProgress(progress.current_source, progress.status, progress.results[progress.current_source]);
+                }
+            }
+
+            updateSourceProgress(source, status, details) {
+                const sourceEl = document.getElementById(`source-${source}`);
+                if (!sourceEl) return;
+                
+                const spinner = sourceEl.querySelector('.spinner-border');
+                const badge = sourceEl.querySelector('.status-badge');
+                const progressBar = sourceEl.querySelector('.progress-bar');
+                const statusText = sourceEl.querySelector('.text-muted');
+                
+                if (status === 'starting') {
+                    spinner.style.display = 'inline-block';
+                    badge.className = 'status-badge status-active';
+                    badge.textContent = 'Searching...';
+                    statusText.textContent = 'Searching for vehicles...';
+                    sourceEl.classList.add('active');
+                } else if (status === 'completed') {
+                    spinner.style.display = 'none';
+                    badge.className = 'status-badge status-completed';
+                    badge.textContent = 'Completed';
+                    progressBar.style.width = '100%';
+                    progressBar.classList.add('bg-success');
+                    sourceEl.classList.remove('active');
+                    sourceEl.classList.add('completed');
+                    
+                    if (details) {
+                        statusText.textContent = `Found ${details.ingested || 0} vehicles (${details.skipped || 0} duplicates, ${details.errors || 0} errors)`;
+                    }
+                }
+            }
+
+            handleSearchError(error) {
+                console.error('Search error:', error);
+                const sourceEl = document.getElementById(`source-${error.source}`);
+                if (sourceEl) {
+                    sourceEl.classList.add('error');
+                    const badge = sourceEl.querySelector('.status-badge');
+                    badge.className = 'status-badge status-error';
+                    badge.textContent = 'Error';
+                    
+                    const statusText = sourceEl.querySelector('.text-muted');
+                    statusText.textContent = error.error;
+                }
+            }
+
+            showRedirectNotice(progress) {
+                const noticeEl = document.getElementById('redirect-notice');
+                const viewResultsBtn = document.getElementById('view-results-btn');
+                
+                noticeEl.style.display = 'block';
+                
+                // Build redirect URL with filters
+                const filters = {{ filters|tojson }};
+                const params = new URLSearchParams();
+                
+                if (filters.make) params.append('make', filters.make);
+                if (filters.model) params.append('model', filters.model);
+                if (filters.year_min) params.append('year_min', filters.year_min);
+                if (filters.year_max) params.append('year_max', filters.year_max);
+                if (filters.price_min) params.append('price_min', filters.price_min);
+                if (filters.price_max) params.append('price_max', filters.price_max);
+                
+                const redirectUrl = `/?${params.toString()}`;
+                viewResultsBtn.href = redirectUrl;
+                
+                // Auto-redirect after 3 seconds
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 3000);
+            }
+        }
+
+        // Initialize progress tracker
+        document.addEventListener('DOMContentLoaded', function() {
+            const sessionId = '{{ session_id }}';
+            const tracker = new SearchProgressTracker(sessionId);
+        });
+    </script>
+</body>
+</html>

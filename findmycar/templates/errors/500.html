@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - FindMyCar</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .btn-home, .btn-retry {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            display: inline-block;
+        }
+        .btn-home:hover, .btn-retry:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        .error-details {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-content">
+            <div class="error-code">500</div>
+            <h1 class="error-message">Engine Trouble!</h1>
+            <p class="mb-4">Our servers are experiencing some technical difficulties. Our team has been notified and is working on a fix.</p>
+            
+            {% if request_id %}
+            <div class="error-details">
+                <strong>Error ID:</strong> {{ request_id }}<br>
+                <small>Please include this ID when contacting support</small>
+            </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <a href="javascript:location.reload()" class="btn-retry">
+                    <i class="fas fa-redo mr-2"></i>
+                    Try Again
+                </a>
+                <a href="/" class="btn-home">
+                    <i class="fas fa-home mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

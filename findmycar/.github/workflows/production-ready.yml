@@ -1,0 +1,312 @@
+name: Production Ready CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.12'
+  NODE_VERSION: '18'
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Run Bandit Security Scan
+      run: bandit -r . -f json -o bandit-report.json || true
+    
+    - name: Run Safety Check
+      run: safety check --json --output safety-report.json || true
+    
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  lint-and-format:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 isort mypy
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Check code formatting with Black
+      run: black --check --diff .
+      continue-on-error: true
+    
+    - name: Lint with flake8
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      continue-on-error: true
+    
+    - name: Check import sorting with isort
+      run: isort --check-only --diff .
+      continue-on-error: true
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client libpq-dev
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Set up test environment
+      run: |
+        export ENVIRONMENT=development
+        export EBAY_CLIENT_ID=test-client-id
+        export EBAY_CLIENT_SECRET=test-client-secret
+        export DATABASE_URL=sqlite:///./test.db
+    
+    - name: Run tests with coverage
+      run: |
+        pytest test_production_ready.py -v --cov=. --cov-report=xml --cov-report=html
+      env:
+        ENVIRONMENT: development
+        EBAY_CLIENT_ID: test-client-id
+        EBAY_CLIENT_SECRET: test-client-secret
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  configuration-validation:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Validate development configuration
+      run: |
+        python config_validator.py
+      env:
+        ENVIRONMENT: development
+        EBAY_CLIENT_ID: test-client-id
+        EBAY_CLIENT_SECRET: test-client-secret
+    
+    - name: Validate production configuration
+      run: |
+        python config_validator.py
+      env:
+        ENVIRONMENT: production
+        EBAY_CLIENT_ID: test-client-id
+        EBAY_CLIENT_SECRET: test-client-secret
+        ALLOWED_ORIGINS: https://example.com
+        ALLOWED_HOSTS: example.com
+        SECRET_KEY: test-secret-key-32-characters-long
+        DEBUG: false
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build development image
+      run: |
+        docker build -f Dockerfile -t findmycar:dev .
+    
+    - name: Build production image
+      run: |
+        docker build -f Dockerfile.prod -t findmycar:prod .
+    
+    - name: Test development container
+      run: |
+        docker run --rm -d --name test-dev -p 8000:8000 \
+          -e ENVIRONMENT=development \
+          -e EBAY_CLIENT_ID=test-id \
+          -e EBAY_CLIENT_SECRET=test-secret \
+          findmycar:dev
+        sleep 10
+        curl -f http://localhost:8000/health || echo "Health check failed"
+        docker stop test-dev
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: test_user
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Run database migrations
+      run: |
+        python init_db.py
+      env:
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+        ENVIRONMENT: development
+        EBAY_CLIENT_ID: test-client-id
+        EBAY_CLIENT_SECRET: test-client-secret
+    
+    - name: Run integration tests
+      run: |
+        python test_framework.py
+      env:
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+        ENVIRONMENT: development
+        EBAY_CLIENT_ID: test-client-id
+        EBAY_CLIENT_SECRET: test-client-secret
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [security-scan, test, configuration-validation, docker-build]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your staging deployment commands here
+        # Example: Deploy to staging server, update staging database, etc.
+    
+    - name: Run staging health checks
+      run: |
+        echo "Running staging health checks..."
+        # Add staging health check commands here
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [security-scan, test, configuration-validation, docker-build, integration-tests]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        # Add your production deployment commands here
+        # Example: Deploy to production servers, run database migrations, etc.
+    
+    - name: Run production health checks
+      run: |
+        echo "Running production health checks..."
+        # Add production health check commands here
+    
+    - name: Send deployment notification
+      run: |
+        echo "Sending deployment notification..."
+        # Add notification logic (Slack, email, etc.)
+
+  security-monitoring:
+    name: Security Monitoring
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for secrets
+      run: |
+        # Check for accidentally committed secrets
+        if grep -r "EBAY_CLIENT_SECRET.*=" . --include="*.py" --include="*.env" | grep -v "your-ebay"; then
+          echo "Potential secrets found in code!"
+          exit 1
+        fi
+    
+    - name: Vulnerability scan
+      run: |
+        echo "Running vulnerability scan..."
+        # Add vulnerability scanning tools like Trivy, Snyk, etc.

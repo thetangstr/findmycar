@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGPT - Data Source Monitoring</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><a href="/" style="text-decoration: none; color: inherit;"><i class="fas fa-car"></i> CarGPT</a></h1>
+                    <p class="subtitle">Data Source Monitoring Dashboard</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/" class="btn btn-outline-light mr-2">
+                        <i class="fas fa-search"></i> Back to Search
+                    </a>
+                    <button class="btn btn-light" onclick="refreshStatus()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <!-- Overall Status -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-heartbeat"></i> Overall System Health</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="overallStatus" class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p>Loading system status...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Sources Status -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-database"></i> Data Sources Status</h4>
+                        <small class="text-muted">Real-time health monitoring of all integrated data sources</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="sourcesStatus">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <p>Loading data sources...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Controls -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-vial"></i> Testing Controls</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button class="btn btn-primary btn-block" onclick="runComprehensiveTest()">
+                                    <i class="fas fa-play"></i> Run Comprehensive Test
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <select id="sourceSelect" class="form-control">
+                                    <option value="">Select Source to Test</option>
+                                    <option value="ebay">eBay Motors</option>
+                                    <option value="carmax">CarMax</option>
+                                    <option value="bringatrailer">Bring a Trailer</option>
+                                    <option value="cars">Cars.com</option>
+                                    <option value="autodev">Auto.dev</option>
+                                </select>
+                                <button class="btn btn-secondary btn-block mt-2" onclick="testSpecificSource()">
+                                    <i class="fas fa-test-tube"></i> Test Selected Source
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="testResults" class="mt-4" style="display: none;">
+                            <h5>Test Results</h5>
+                            <div id="testContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Auto-refresh every 30 seconds
+        setInterval(refreshStatus, 30000);
+        
+        // Load initial status
+        $(document).ready(function() {
+            refreshStatus();
+        });
+
+        async function refreshStatus() {
+            try {
+                // Get overall health
+                const healthResponse = await fetch('/health/detailed');
+                const healthData = await healthResponse.json();
+                
+                // Get data sources status
+                const sourcesResponse = await fetch('/health/sources');
+                const sourcesData = await sourcesResponse.json();
+                
+                updateOverallStatus(healthData);
+                updateSourcesStatus(sourcesData);
+                
+            } catch (error) {
+                console.error('Error refreshing status:', error);
+                showError('Failed to refresh status: ' + error.message);
+            }
+        }
+
+        function updateOverallStatus(healthData) {
+            const statusDiv = document.getElementById('overallStatus');
+            const status = healthData.status;
+            
+            let statusClass = 'success';
+            let statusIcon = 'check-circle';
+            let statusText = 'Healthy';
+            
+            if (status === 'degraded') {
+                statusClass = 'warning';
+                statusIcon = 'exclamation-triangle';
+                statusText = 'Degraded';
+            } else if (status === 'unhealthy') {
+                statusClass = 'danger';
+                statusIcon = 'times-circle';
+                statusText = 'Unhealthy';
+            }
+            
+            statusDiv.innerHTML = `
+                <div class="alert alert-${statusClass}">
+                    <h2><i class="fas fa-${statusIcon}"></i> System Status: ${statusText}</h2>
+                    <p>Service: ${healthData.service} v${healthData.version}</p>
+                    <small>Last checked: ${new Date().toLocaleString()}</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Database</h5>
+                                <span class="badge badge-${healthData.checks.database.status === 'healthy' ? 'success' : 'danger'}">
+                                    ${healthData.checks.database.status}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Cache</h5>
+                                <span class="badge badge-${healthData.checks.cache.status === 'healthy' ? 'success' : 'danger'}">
+                                    ${healthData.checks.cache.status}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Data Sources</h5>
+                                <span class="badge badge-${getStatusBadgeClass(healthData.checks.data_sources?.overall_status)}">
+                                    ${healthData.checks.data_sources?.overall_status || 'unknown'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateSourcesStatus(sourcesData) {
+            const sourcesDiv = document.getElementById('sourcesStatus');
+            
+            if (!sourcesData.sources) {
+                sourcesDiv.innerHTML = '<p class="text-muted">No data source status available</p>';
+                return;
+            }
+            
+            const sourceIcons = {
+                'ebay': 'fab fa-ebay',
+                'carmax': 'fas fa-car',
+                'bringatrailer': 'fas fa-gavel',
+                'cars_com': 'fas fa-car-side',
+                'autodev': 'fas fa-database'
+            };
+            
+            const sourceNames = {
+                'ebay': 'eBay Motors',
+                'carmax': 'CarMax',
+                'bringatrailer': 'Bring a Trailer',
+                'cars_com': 'Cars.com',
+                'autodev': 'Auto.dev'
+            };
+            
+            let html = '<div class="row">';
+            
+            for (const [sourceKey, sourceData] of Object.entries(sourcesData.sources)) {
+                const status = sourceData.status || 'unknown';
+                const badgeClass = getStatusBadgeClass(status);
+                const icon = sourceIcons[sourceKey] || 'fas fa-question';
+                const name = sourceNames[sourceKey] || sourceKey;
+                
+                html += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="${icon}"></i> ${name}
+                                </h5>
+                                <p class="card-text">
+                                    <span class="badge badge-${badgeClass}">${status}</span>
+                                </p>
+                                ${sourceData.response_time ? `<small>Response: ${sourceData.response_time.toFixed(2)}s</small><br>` : ''}
+                                ${sourceData.success_rate ? `<small>Success: ${(sourceData.success_rate * 100).toFixed(1)}%</small><br>` : ''}
+                                ${sourceData.data_points ? `<small>Data points: ${sourceData.data_points}</small><br>` : ''}
+                                ${sourceData.last_checked ? `<small>Checked: ${new Date(sourceData.last_checked).toLocaleString()}</small>` : ''}
+                                ${sourceData.error_message ? `<div class="alert alert-danger mt-2"><small>${sourceData.error_message}</small></div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            sourcesDiv.innerHTML = html;
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'healthy': return 'success';
+                case 'degraded': return 'warning';
+                case 'unhealthy': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        async function runComprehensiveTest() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running Tests...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/health/test-sources', { method: 'POST' });
+                const data = await response.json();
+                
+                showTestResults('Comprehensive Test Results', data);
+                
+            } catch (error) {
+                showError('Test failed: ' + error.message);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        async function testSpecificSource() {
+            const sourceSelect = document.getElementById('sourceSelect');
+            const source = sourceSelect.value;
+            
+            if (!source) {
+                alert('Please select a source to test');
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`/health/source/${source}`);
+                const data = await response.json();
+                
+                showTestResults(`${source} Test Results`, data);
+                
+            } catch (error) {
+                showError('Test failed: ' + error.message);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function showTestResults(title, data) {
+            const resultsDiv = document.getElementById('testResults');
+            const contentDiv = document.getElementById('testContent');
+            
+            let html = `<h6>${title}</h6>`;
+            
+            if (data.tests) {
+                html += '<div class="table-responsive"><table class="table table-sm">';
+                html += '<thead><tr><th>Test</th><th>Status</th><th>Message</th><th>Time</th><th>Data</th></tr></thead><tbody>';
+                
+                for (const test of data.tests) {
+                    const statusClass = test.status === 'PASS' ? 'success' : test.status === 'WARNING' ? 'warning' : 'danger';
+                    html += `
+                        <tr>
+                            <td>${test.test_name}</td>
+                            <td><span class="badge badge-${statusClass}">${test.status}</span></td>
+                            <td>${test.message}</td>
+                            <td>${test.execution_time?.toFixed(2)}s</td>
+                            <td>${test.data_points || 0}</td>
+                        </tr>
+                    `;
+                }
+                
+                html += '</tbody></table></div>';
+            } else if (data.sources) {
+                // Comprehensive test results
+                for (const [source, sourceData] of Object.entries(data.sources)) {
+                    html += `<h6>${source}</h6>`;
+                    html += `<p>Status: <span class="badge badge-${getStatusBadgeClass(sourceData.status)}">${sourceData.status}</span></p>`;
+                    if (sourceData.response_time) html += `<p>Response Time: ${sourceData.response_time.toFixed(2)}s</p>`;
+                    if (sourceData.success_rate) html += `<p>Success Rate: ${(sourceData.success_rate * 100).toFixed(1)}%</p>`;
+                }
+            }
+            
+            contentDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const contentDiv = document.getElementById('testContent');
+            contentDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+            document.getElementById('testResults').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

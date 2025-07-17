@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Comparison - CarGPT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .comparison-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .comparison-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .vehicle-column {
+            text-align: center;
+            padding: 1rem;
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .vehicle-column:last-child {
+            border-right: none;
+        }
+        
+        .vehicle-image {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .no-image {
+            width: 200px;
+            height: 150px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .vehicle-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vehicle-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .deal-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .great-deal {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .good-deal {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .fair-price {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .high-price {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .comparison-row {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .comparison-label {
+            background: #f8f9fa;
+            padding: 1rem;
+            font-weight: 600;
+            min-width: 150px;
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .comparison-cell {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .comparison-cell:last-child {
+            border-right: none;
+        }
+        
+        .better-value {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .worse-value {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .add-vehicle-btn {
+            background: #f8f9fa;
+            border: 2px dashed #ccc;
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-vehicle-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .remove-vehicle-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .pros-cons {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        
+        .pros {
+            color: #28a745;
+        }
+        
+        .cons {
+            color: #dc3545;
+        }
+        
+        .comparison-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .winner-badge {
+            background: #ffd700;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-balance-scale"></i> Vehicle Comparison</h1>
+                    <p class="subtitle">Compare vehicles side by side</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/" class="btn btn-outline-light mr-2">
+                        <i class="fas fa-search"></i> Back to Search
+                    </a>
+                    <a href="/favorites" class="btn btn-outline-light">
+                        <i class="fas fa-heart"></i> Favorites
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Comparison Instructions -->
+        <div class="comparison-container">
+            <div class="text-center">
+                <h2><i class="fas fa-balance-scale"></i> Compare Your Selected Vehicles</h2>
+                <p>Analyze features, pricing, and value side by side to make the best decision</p>
+            </div>
+        </div>
+        
+        <!-- Comparison Table -->
+        <div class="comparison-table">
+            <!-- Header with Vehicle Images and Basic Info -->
+            <div class="comparison-header">
+                <div class="row">
+                    <div class="col-2">
+                        <strong>Comparison</strong>
+                    </div>
+                    {% for vehicle in vehicles %}
+                    <div class="col-{{ (10 // vehicles|length) if vehicles|length > 1 else 10 }}">
+                        <div class="vehicle-column position-relative">
+                            {% if vehicles|length > 1 %}
+                            <button class="remove-vehicle-btn" onclick="removeVehicle({{ vehicle.id }})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                            
+                            {% if vehicle.image_url %}
+                            <img src="{{ vehicle.image_url }}" alt="{{ vehicle.title }}" class="vehicle-image">
+                            {% else %}
+                            <div class="no-image">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="vehicle-title">{{ vehicle.title }}</div>
+                            <div class="vehicle-price">
+                                {% if vehicle.price %}
+                                ${{ '{:,.0f}'.format(vehicle.price) }}
+                                {% else %}
+                                Contact for Price
+                                {% endif %}
+                            </div>
+                            
+                            {% if vehicle.deal_rating %}
+                            <div class="deal-badge {% if vehicle.deal_rating == 'Great Deal' %}great-deal{% elif vehicle.deal_rating == 'Good Deal' %}good-deal{% elif vehicle.deal_rating == 'Fair Price' %}fair-price{% else %}high-price{% endif %}">
+                                {{ vehicle.deal_rating }}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mt-2">
+                                <a href="/vehicle/{{ vehicle.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Add Vehicle Button -->
+                    {% if vehicles|length < 4 %}
+                    <div class="col-{{ (10 // (vehicles|length + 1)) if vehicles|length > 0 else 10 }}">
+                        <div class="add-vehicle-btn" onclick="addVehicleToComparison()">
+                            <i class="fas fa-plus"></i><br>
+                            Add Vehicle
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Comparison Rows -->
+            {% if vehicles %}
+            <!-- Basic Information -->
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-info-circle"></i> Year
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.year or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-industry"></i> Make
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.make or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-car"></i> Model
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.model or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-tachometer-alt"></i> Mileage
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ '{:,}'.format(vehicle.mileage) if vehicle.mileage else 'N/A' }} miles
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-map-marker-alt"></i> Location
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.location or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-cog"></i> Transmission
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.transmission or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-gas-pump"></i> Fuel Type
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.fuel_type or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-palette"></i> Color
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {{ vehicle.color or 'N/A' }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pricing Information -->
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-dollar-sign"></i> Listed Price
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {% if vehicle.price %}
+                    ${{ '{:,.0f}'.format(vehicle.price) }}
+                    {% else %}
+                    Contact for Price
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-calculator"></i> Estimated Value
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {% if vehicle.estimated_value %}
+                    ${{ '{:,.0f}'.format(vehicle.estimated_value) }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-chart-line"></i> Value Rating
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {% if vehicle.deal_rating %}
+                    <span class="badge {% if vehicle.deal_rating == 'Great Deal' %}badge-success{% elif vehicle.deal_rating == 'Good Deal' %}badge-primary{% elif vehicle.deal_rating == 'Fair Price' %}badge-warning{% else %}badge-danger{% endif %}">
+                        {{ vehicle.deal_rating }}
+                    </span>
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Source Information -->
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-source"></i> Source
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    {% if vehicle.source == 'ebay' %}
+                    <span class="badge badge-primary">
+                        <i class="fab fa-ebay"></i> eBay Motors
+                    </span>
+                    {% elif vehicle.source == 'carmax' %}
+                    <span class="badge badge-info">
+                        <i class="fas fa-car"></i> CarMax
+                    </span>
+                    {% else %}
+                    <span class="badge badge-secondary">
+                        {{ vehicle.source|title }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="comparison-row">
+                <div class="comparison-label">
+                    <i class="fas fa-link"></i> Actions
+                </div>
+                {% for vehicle in vehicles %}
+                <div class="comparison-cell">
+                    <div class="btn-group-vertical">
+                        <a href="{{ vehicle.external_url }}" target="_blank" class="btn btn-primary btn-sm mb-1">
+                            <i class="fas fa-external-link-alt"></i> View Listing
+                        </a>
+                        <button class="btn btn-outline-danger btn-sm" onclick="toggleFavorite({{ vehicle.id }})">
+                            <i class="fas fa-heart"></i> Favorite
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- AI-Powered Comparison Summary -->
+        {% if vehicles|length >= 2 %}
+        <div class="comparison-summary">
+            <h3><i class="fas fa-robot"></i> AI Comparison Summary</h3>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-trophy"></i> Best Value</h5>
+                    <div class="winner-badge">
+                        <i class="fas fa-star"></i> {{ best_value_vehicle.title if best_value_vehicle else 'Analysis in progress...' }}
+                    </div>
+                    <p>{{ best_value_reason if best_value_reason else 'AI analysis determining best value based on price, condition, and market data.' }}</p>
+                </div>
+                
+                <div class="col-md-6">
+                    <h5><i class="fas fa-dollar-sign"></i> Lowest Price</h5>
+                    <div class="winner-badge">
+                        <i class="fas fa-money-bill-wave"></i> {{ lowest_price_vehicle.title if lowest_price_vehicle else 'Calculating...' }}
+                    </div>
+                    <p>{{ lowest_price_reason if lowest_price_reason else 'Identifying the most affordable option among your selections.' }}</p>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-clock"></i> Newest</h5>
+                    <div class="winner-badge">
+                        <i class="fas fa-calendar-alt"></i> {{ newest_vehicle.title if newest_vehicle else 'Analyzing...' }}
+                    </div>
+                    <p>{{ newest_vehicle_reason if newest_vehicle_reason else 'Finding the newest vehicle with the latest features and technology.' }}</p>
+                </div>
+                
+                <div class="col-md-6">
+                    <h5><i class="fas fa-tachometer-alt"></i> Lowest Mileage</h5>
+                    <div class="winner-badge">
+                        <i class="fas fa-road"></i> {{ lowest_mileage_vehicle.title if lowest_mileage_vehicle else 'Computing...' }}
+                    </div>
+                    <p>{{ lowest_mileage_reason if lowest_mileage_reason else 'Identifying the vehicle with the least wear and tear.' }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function removeVehicle(vehicleId) {
+            if (confirm('Remove this vehicle from comparison?')) {
+                window.location.href = `/comparison/remove/${vehicleId}`;
+            }
+        }
+        
+        function addVehicleToComparison() {
+            window.location.href = '/?comparison=true';
+        }
+        
+        function toggleFavorite(vehicleId) {
+            // Implementation for favorite toggle
+            fetch(`/api/favorites/${vehicleId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

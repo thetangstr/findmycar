@@ -136,3 +136,20 @@ cython_debug/
 
 # VSCode files
 .vscode/
+
+# CarGPT specific
+*.db
+*.sqlite
+logs/
+data/
+.env.local
+.env.production
+
+# Browser automation
+.playwright/
+screenshots/
+test-results/
+
+# Chrome/Selenium
+chrome-driver/
+geckodriver.log

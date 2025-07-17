@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - FindMyCar</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .btn-home {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <h1 class="error-message">Oops! Page Not Found</h1>
+            <p class="mb-4">The page you're looking for seems to have driven away. Let's get you back on track!</p>
+            <a href="/" class="btn-home">
+                <i class="fas fa-home mr-2"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</body>
+</html>

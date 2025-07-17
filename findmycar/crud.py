@@ -6,8 +6,23 @@ import schemas
 def get_vehicle(db: Session, vehicle_id: int):
     return db.query(Vehicle).filter(Vehicle.id == vehicle_id).first()
 
-def get_vehicles(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "newest"):
+def get_vehicles(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "newest", filters: dict = None):
     query = db.query(Vehicle)
+    
+    # Apply filters if provided
+    if filters:
+        if filters.get('make'):
+            query = query.filter(Vehicle.make.ilike(f"%{filters['make']}%"))
+        if filters.get('model'):
+            query = query.filter(Vehicle.model.ilike(f"%{filters['model']}%"))
+        if filters.get('year_min'):
+            query = query.filter(Vehicle.year >= filters['year_min'])
+        if filters.get('year_max'):
+            query = query.filter(Vehicle.year <= filters['year_max'])
+        if filters.get('price_min'):
+            query = query.filter(Vehicle.price >= filters['price_min'])
+        if filters.get('price_max'):
+            query = query.filter(Vehicle.price <= filters['price_max'])
     
     # Apply sorting
     if sort_by == "newest":
@@ -43,8 +58,25 @@ def get_vehicles(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "n
     
     return query.offset(skip).limit(limit).all()
 
-def get_vehicle_count(db: Session):
-    return db.query(Vehicle).count()
+def get_vehicle_count(db: Session, filters: dict = None):
+    query = db.query(Vehicle)
+    
+    # Apply filters if provided
+    if filters:
+        if filters.get('make'):
+            query = query.filter(Vehicle.make.ilike(f"%{filters['make']}%"))
+        if filters.get('model'):
+            query = query.filter(Vehicle.model.ilike(f"%{filters['model']}%"))
+        if filters.get('year_min'):
+            query = query.filter(Vehicle.year >= filters['year_min'])
+        if filters.get('year_max'):
+            query = query.filter(Vehicle.year <= filters['year_max'])
+        if filters.get('price_min'):
+            query = query.filter(Vehicle.price >= filters['price_min'])
+        if filters.get('price_max'):
+            query = query.filter(Vehicle.price <= filters['price_max'])
+    
+    return query.count()
 
 def create_vehicle(db: Session, vehicle: schemas.Vehicle):
     db_vehicle = Vehicle(**vehicle.dict())

@@ -1,14 +1,10 @@
-from sqlalchemy import create_engine, Column, Integer, String, JSON, DateTime, Float
+from sqlalchemy import create_engine, Column, Integer, String, JSON, DateTime, Float, Text, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import datetime
 import os
-
-# Use environment variable for database URL, with fallback
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./findmycar.db")
-
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+import hashlib
+from database_config import engine, SessionLocal
 Base = declarative_base()
 
 class Vehicle(Base):
@@ -41,6 +37,28 @@ class Vehicle(Base):
     # Raw data from source
     vehicle_details = Column(JSON)
     
+    # Source-specific fields
+    # CarMax specific fields
+    carmax_store = Column(String)  # CarMax store location
+    carmax_stock_number = Column(String)  # CarMax internal stock number
+    carmax_warranty = Column(String)  # CarMax warranty information
+    features = Column(JSON)  # List of vehicle features
+    seller_notes = Column(String)  # Additional seller notes/description
+    
+    # Bring a Trailer (BaT) specific fields
+    bat_auction_id = Column(String)  # BaT auction identifier
+    current_bid = Column(Float)  # Current highest bid amount
+    bid_count = Column(Integer)  # Number of bids placed
+    time_left = Column(String)  # Time remaining in auction
+    auction_status = Column(String)  # 'active', 'ended', 'sold', 'no_sale'
+    reserve_met = Column(String)  # Whether reserve price has been met
+    comment_count = Column(Integer)  # Number of comments on listing
+    bat_category = Column(String)  # BaT category (cars, motorcycles, trucks, etc.)
+    seller_name = Column(String)  # Seller name/username
+    detailed_description = Column(String)  # Full auction description
+    vehicle_history = Column(String)  # Vehicle history information
+    recent_work = Column(String)  # Recent work performed on vehicle
+    
     # Valuation data
     estimated_value = Column(Float)
     market_min = Column(Float)
@@ -69,8 +87,82 @@ class UserSession(Base):
     session_id = Column(String, unique=True, index=True)
     favorites = Column(JSON)  # List of vehicle IDs
     search_history = Column(JSON)  # List of recent searches
+    comparison_list = Column(JSON)  # List of vehicle IDs for comparison
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     last_activity = Column(DateTime, default=datetime.datetime.utcnow)
+
+class SearchCache(Base):
+    """Database cache for popular search results (warm cache layer)"""
+    __tablename__ = "search_cache"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    cache_key = Column(String(255), unique=True, index=True)
+    query_hash = Column(String(64), index=True)
+    query_text = Column(String(500))  # Store original query for debugging
+    filters_json = Column(Text)  # JSON string of filters
+    results = Column(JSON)  # Cached search results
+    source = Column(String(50))  # Data source (ebay, carmax, etc.)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    expires_at = Column(DateTime, index=True)
+    access_count = Column(Integer, default=1)
+    last_accessed = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.query_text and self.filters_json:
+            # Generate cache key and hash
+            key_data = f"{self.query_text}:{self.filters_json}"
+            self.query_hash = hashlib.md5(key_data.encode()).hexdigest()
+            self.cache_key = f"search_{self.query_hash}"
+
+class QueryAnalytics(Base):
+    """Track search query popularity for intelligent caching decisions"""
+    __tablename__ = "query_analytics"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    query_normalized = Column(String(255), unique=True, index=True)
+    search_count = Column(Integer, default=1)
+    last_searched = Column(DateTime, default=datetime.datetime.utcnow)
+    avg_results = Column(Integer)  # Average number of results returned
+    cache_hits = Column(Integer, default=0)  # Number of times served from cache
+    cache_misses = Column(Integer, default=0)  # Number of times fetched fresh
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    # Computed cache efficiency
+    @property
+    def cache_hit_rate(self):
+        total = self.cache_hits + self.cache_misses
+        return (self.cache_hits / total) if total > 0 else 0.0
+
+class SavedSearch(Base):
+    """User's saved searches with alert functionality"""
+    __tablename__ = "saved_searches"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, index=True)  # Links to user session
+    name = Column(String(255))  # User-friendly name for the search
+    query = Column(String(500))  # Original search query
+    filters = Column(JSON)  # Search filters
+    alerts_enabled = Column(String, default='false')  # Boolean as string
+    alert_frequency = Column(String, default='daily')  # daily, weekly, immediate
+    last_run = Column(DateTime)  # When search was last executed
+    last_results_count = Column(Integer, default=0)  # Number of results from last run
+    new_results_count = Column(Integer, default=0)  # New results since last check
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    # Alert tracking
+    last_alert_sent = Column(DateTime)
+    alert_count = Column(Integer, default=0)
+    
+    @property
+    def is_alerts_enabled(self):
+        return self.alerts_enabled == 'true'
+
+# Create indexes for performance
+Index('idx_search_cache_expires', SearchCache.expires_at)
+Index('idx_search_cache_accessed', SearchCache.last_accessed)
+Index('idx_query_analytics_count', QueryAnalytics.search_count.desc())
 
 def get_db():
     db = SessionLocal()

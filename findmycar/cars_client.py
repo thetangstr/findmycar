@@ -83,8 +83,9 @@ class CarsComClient:
                     time.sleep(3)
             else:
                 logger.error("All Cars.com search attempts failed")
-                # Fall back to realistic data generation
-                return self._generate_realistic_cars_data(query, limit)
+                # Cars.com is currently unavailable - return empty results
+                logger.warning("Cars.com integration is currently unavailable due to access restrictions")
+                return []
             
             # Parse the response
             vehicles = self._parse_search_results(response.text)
@@ -92,6 +93,7 @@ class CarsComClient:
             
         except Exception as e:
             logger.error(f"Error searching Cars.com: {e}")
+            logger.warning("Cars.com integration is currently unavailable")
             return []
     
     def _build_search_params(self, query: str, filters: Optional[Dict], limit: int, offset: int) -> Dict:

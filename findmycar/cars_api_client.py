@@ -40,10 +40,12 @@ class CarsComAPIClient:
     def search_listings(self, query: str, filters: Optional[Dict] = None, limit: int = 25, offset: int = 0) -> List[Dict]:
         """
         Search for vehicles using a more direct approach
+        NOTE: Cars.com integration is currently disabled due to fake data issues
         """
         try:
-            # Generate realistic Cars.com data based on query
-            return self._generate_realistic_data(query, limit)
+            logger.warning("Cars.com API integration is currently disabled - no real API access available")
+            logger.info("To get real Cars.com data, consider using Marketcheck API or other automotive data providers")
+            return []
             
         except Exception as e:
             logger.error(f"Error in Cars.com API search: {e}")

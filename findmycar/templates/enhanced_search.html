@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGPT - Enhanced Vehicle Search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/enhanced-search.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="text-center text-white">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <h4 class="mt-3">Searching for vehicles...</h4>
+                <p>CarGPT is analyzing your request and fetching the best matches...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-car"></i> CarGPT</h1>
+                    <p class="subtitle">Enhanced AI-Powered Vehicle Discovery</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/favorites" class="btn btn-outline-light">
+                        <i class="fas fa-heart"></i> Favorites (<span id="favoritesCount">{{ favorites|length }}</span>)
+                    </a>
+                    <a href="/saved-searches" class="btn btn-outline-light ml-2">
+                        <i class="fas fa-bookmark"></i> Saved Searches
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container-fluid">
+        <!-- Enhanced Search Container -->
+        <div class="search-container">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <form id="searchForm" class="enhanced-search-form">
+                            <!-- Main Search Input -->
+                            <div class="search-input-group">
+                                <input type="text" 
+                                       id="query" 
+                                       name="query" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="Tell me what you're looking for... e.g., 'Honda Civic 2020', 'Tesla under $40k', 'reliable family SUV'"
+                                       autocomplete="off">
+                                <button type="submit" class="search-btn">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                                
+                                <!-- Search Suggestions -->
+                                <div id="searchSuggestions" class="search-suggestions" style="display: none;"></div>
+                            </div>
+                            
+                            <!-- Quick Search Tags -->
+                            <div class="quick-search-tags">
+                                <span class="quick-tag" data-query="Honda Civic">
+                                    <i class="fas fa-car"></i> Honda Civic
+                                </span>
+                                <span class="quick-tag" data-query="Tesla under $50k">
+                                    <i class="fas fa-bolt"></i> Tesla under $50k
+                                </span>
+                                <span class="quick-tag" data-query="reliable family SUV">
+                                    <i class="fas fa-users"></i> Family SUV
+                                </span>
+                                <span class="quick-tag" data-query="luxury sedan">
+                                    <i class="fas fa-star"></i> Luxury Sedan
+                                </span>
+                                <span class="quick-tag" data-query="pickup truck">
+                                    <i class="fas fa-truck"></i> Pickup Truck
+                                </span>
+                                <span class="quick-tag" data-query="sports car">
+                                    <i class="fas fa-tachometer-alt"></i> Sports Car
+                                </span>
+                            </div>
+                            
+                            <!-- Advanced Filters Toggle -->
+                            <div class="text-center mt-3">
+                                <button type="button" class="filter-toggle" onclick="toggleAdvancedFilters()">
+                                    <i class="fas fa-sliders-h"></i> <span id="toggleText">Show Advanced Filters</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Advanced Filters Panel -->
+        <div id="advancedFilters" class="advanced-filters" style="display: none;">
+            <div class="container">
+                <div class="row">
+                    <!-- Price Range -->
+                    <div class="col-md-4">
+                        <div class="filter-section">
+                            <h6><i class="fas fa-dollar-sign"></i> Price Range</h6>
+                            <div class="price-range-container">
+                                <div class="price-range-values">
+                                    <span id="priceMinValue">$0</span>
+                                    <span id="priceMaxValue">$100,000</span>
+                                </div>
+                                <div class="price-range-slider">
+                                    <input type="range" id="priceMin" name="price_min" min="0" max="100000" value="0" step="1000">
+                                    <input type="range" id="priceMax" name="price_max" min="0" max="100000" value="100000" step="1000">
+                                </div>
+                                <div class="price-range-labels">
+                                    <span>$0</span>
+                                    <span>$100,000+</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mileage -->
+                    <div class="col-md-4">
+                        <div class="filter-section">
+                            <h6><i class="fas fa-tachometer-alt"></i> Maximum Mileage</h6>
+                            <div class="mileage-range-container">
+                                <div class="price-range-values">
+                                    <span id="mileageMaxValue">200,000 miles</span>
+                                </div>
+                                <div class="mileage-range-slider">
+                                    <input type="range" id="mileageMax" name="mileage_max" min="0" max="200000" value="200000" step="5000">
+                                </div>
+                                <div class="price-range-labels">
+                                    <span>0 miles</span>
+                                    <span>200,000+ miles</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Year Range -->
+                    <div class="col-md-4">
+                        <div class="filter-section">
+                            <h6><i class="fas fa-calendar"></i> Year Range</h6>
+                            <div class="year-range-container">
+                                <div class="price-range-values">
+                                    <span id="yearMinValue">1990</span>
+                                    <span id="yearMaxValue">2024</span>
+                                </div>
+                                <div class="year-range-slider">
+                                    <input type="range" id="yearMin" name="year_min" min="1990" max="2024" value="1990">
+                                    <input type="range" id="yearMax" name="year_max" min="1990" max="2024" value="2024">
+                                </div>
+                                <div class="price-range-labels">
+                                    <span>1990</span>
+                                    <span>2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Make Filter -->
+                    <div class="col-md-4">
+                        <div class="filter-section">
+                            <h6><i class="fas fa-industry"></i> Make</h6>
+                            <div class="filter-buttons">
+                                <button type="button" class="filter-btn" data-filter="make" data-value="Honda">
+                                    <i class="fas fa-car"></i> Honda
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="make" data-value="Toyota">
+                                    <i class="fas fa-car"></i> Toyota
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="make" data-value="Ford">
+                                    <i class="fas fa-car"></i> Ford
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="make" data-value="Tesla">
+                                    <i class="fas fa-bolt"></i> Tesla
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="make" data-value="BMW">
+                                    <i class="fas fa-star"></i> BMW
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="make" data-value="Mercedes">
+                                    <i class="fas fa-star"></i> Mercedes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Body Style Filter -->
+                    <div class="col-md-4">
+                        <div class="filter-section">
+                            <h6><i class="fas fa-shapes"></i> Body Style</h6>
+                            <div class="filter-buttons">
+                                <button type="button" class="filter-btn" data-filter="body_style" data-value="sedan">
+                                    <i class="fas fa-car"></i> Sedan
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="body_style" data-value="suv">
+                                    <i class="fas fa-car"></i> SUV
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="body_style" data-value="truck">
+                                    <i class="fas fa-truck"></i> Truck
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="body_style" data-value="coupe">
+                                    <i class="fas fa-car"></i> Coupe
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="body_style" data-value="convertible">
+                                    <i class="fas fa-car"></i> Convertible
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="body_style" data-value="hatchback">
+                                    <i class="fas fa-car"></i> Hatchback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fuel Type Filter -->
+                    <div class="col-md-4">
+                        <div class="filter-section">
+                            <h6><i class="fas fa-gas-pump"></i> Fuel Type</h6>
+                            <div class="filter-buttons">
+                                <button type="button" class="filter-btn" data-filter="fuel_type" data-value="gas">
+                                    <i class="fas fa-gas-pump"></i> Gas
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="fuel_type" data-value="hybrid">
+                                    <i class="fas fa-leaf"></i> Hybrid
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="fuel_type" data-value="electric">
+                                    <i class="fas fa-bolt"></i> Electric
+                                </button>
+                                <button type="button" class="filter-btn" data-filter="fuel_type" data-value="diesel">
+                                    <i class="fas fa-gas-pump"></i> Diesel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <button type="button" id="clearFilters" class="btn btn-outline-secondary mr-3">
+                            <i class="fas fa-eraser"></i> Clear All Filters
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('searchForm').submit()">
+                            <i class="fas fa-search"></i> Apply Filters & Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search History -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Results will be displayed here -->
+                    {% if vehicles %}
+                    <div class="results-header">
+                        <h3 class="results-count">
+                            <i class="fas fa-car"></i> {{ total_vehicles }} Vehicle{{ 's' if total_vehicles != 1 else '' }} Found
+                        </h3>
+                        <div class="d-flex align-items-center">
+                            <select class="sort-dropdown" onchange="sortResults(this.value)">
+                                <option value="relevance">Sort by Relevance</option>
+                                <option value="price_low">Price: Low to High</option>
+                                <option value="price_high">Price: High to Low</option>
+                                <option value="year_new">Year: Newest First</option>
+                                <option value="year_old">Year: Oldest First</option>
+                                <option value="mileage_low">Mileage: Low to High</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Grid -->
+                    <div class="vehicle-grid">
+                        {% for vehicle in vehicles %}
+                        <div class="vehicle-card enhanced" data-vehicle-id="{{ vehicle.id }}">
+                            <div class="vehicle-image">
+                                {% if vehicle.image_url %}
+                                <img src="{{ vehicle.image_url }}" alt="{{ vehicle.title }}" loading="lazy">
+                                {% else %}
+                                <div class="no-image">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Deal Badge -->
+                                {% if vehicle.deal_rating %}
+                                <div class="deal-badge {% if vehicle.deal_rating == 'Great Deal' %}great-deal{% elif vehicle.deal_rating == 'Good Deal' %}good-deal{% elif vehicle.deal_rating == 'Fair Price' %}fair-price{% else %}high-price{% endif %}">
+                                    {{ vehicle.deal_rating }}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Favorite Button -->
+                                <button class="favorite-btn" onclick="toggleFavorite({{ vehicle.id }})">
+                                    <i class="{% if vehicle.id in favorites %}fas{% else %}far{% endif %} fa-heart"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="vehicle-info">
+                                <h5 class="vehicle-title">{{ vehicle.title }}</h5>
+                                <div class="vehicle-price">
+                                    {% if vehicle.price %}
+                                    <span class="price">${{ '{:,.0f}'.format(vehicle.price) }}</span>
+                                    {% if vehicle.estimated_value %}
+                                    <span class="estimated-value">Est. ${{ '{:,.0f}'.format(vehicle.estimated_value) }}</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="price">Contact for Price</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="vehicle-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>{{ vehicle.year or 'N/A' }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>{{ '{:,}'.format(vehicle.mileage) if vehicle.mileage else 'N/A' }} miles</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ vehicle.location or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="vehicle-actions">
+                                    <a href="/vehicle/{{ vehicle.id }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="compareVehicle({{ vehicle.id }})">
+                                        <i class="fas fa-balance-scale"></i> Compare
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>Ready to find your perfect vehicle?</h3>
+                        <p>Use the enhanced search above to discover vehicles that match your needs.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-md-4">
+                    <div id="searchHistoryContainer" class="search-history">
+                        <!-- Search history will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Popular Searches -->
+                    <div class="popular-searches">
+                        <h6><i class="fas fa-fire"></i> Popular Searches</h6>
+                        <div class="popular-item" onclick="performSearch('Honda Civic')">Honda Civic</div>
+                        <div class="popular-item" onclick="performSearch('Tesla Model 3')">Tesla Model 3</div>
+                        <div class="popular-item" onclick="performSearch('Toyota Camry')">Toyota Camry</div>
+                        <div class="popular-item" onclick="performSearch('Ford F-150')">Ford F-150</div>
+                        <div class="popular-item" onclick="performSearch('BMW 3 Series')">BMW 3 Series</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/static/js/enhanced-search.js"></script>
+    
+    <script>
+        // Toggle advanced filters
+        function toggleAdvancedFilters() {
+            const filters = document.getElementById('advancedFilters');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (filters.style.display === 'none' || filters.style.display === '') {
+                filters.style.display = 'block';
+                toggleText.textContent = 'Hide Advanced Filters';
+            } else {
+                filters.style.display = 'none';
+                toggleText.textContent = 'Show Advanced Filters';
+            }
+        }
+        
+        // Perform search with query
+        function performSearch(query) {
+            document.getElementById('query').value = query;
+            document.getElementById('searchForm').submit();
+        }
+        
+        // Sort results
+        function sortResults(sortBy) {
+            // Implementation for sorting results
+            console.log('Sorting by:', sortBy);
+        }
+        
+        // Compare vehicle
+        function compareVehicle(vehicleId) {
+            // Implementation for vehicle comparison
+            console.log('Compare vehicle:', vehicleId);
+        }
+        
+        // Toggle favorite
+        function toggleFavorite(vehicleId) {
+            // Implementation for favorite toggle
+            console.log('Toggle favorite:', vehicleId);
+        }
+    </script>
+    
+    <!-- Demo Data and Script -->
+    {% if demo_vehicles_json %}
+    <script>
+        window.demoVehicles = {{ demo_vehicles_json|safe }};
+    </script>
+    <script src="/static/js/enhanced-search-demo.js"></script>
+    {% endif %}
+</body>
+</html>
