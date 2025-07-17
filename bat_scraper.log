@@ -1,0 +1,13 @@
+2025-05-29 20:07:52,285 - bat_scraper - INFO - Starting Bring a Trailer scraper
+2025-05-29 20:07:52,678 - bat_scraper - INFO - Fetching listings page: https://bringatrailer.com/auctions/list
+2025-05-29 20:07:52,678 - bat_scraper - INFO - Waiting 8.39 seconds before request
+2025-05-29 20:08:20,941 - bat_scraper - ERROR - Error fetching https://bringatrailer.com/auctions/list: 404 Client Error: Not Found for url: https://bringatrailer.com/auctions/list
+2025-05-29 20:08:20,941 - bat_scraper - ERROR - Failed to fetch listings page. Aborting.
+2025-05-29 20:10:37,060 - bat_scraper - INFO - Starting Bring a Trailer scraper
+2025-05-29 20:10:37,178 - bat_scraper - INFO - Fetching listings page: https://bringatrailer.com/auctions
+2025-05-29 20:10:37,178 - bat_scraper - INFO - Waiting 8.17 seconds before request
+2025-05-29 20:11:22,170 - bat_scraper - ERROR - Could not find listing containers on the page. HTML structure may have changed.
+2025-05-29 20:11:22,176 - bat_scraper - INFO - Saved HTML to bat_debug.html for debugging
+2025-05-29 20:11:22,179 - bat_scraper - INFO - Found 0 listings to scrape
+2025-05-29 20:11:22,179 - bat_scraper - INFO - Successfully scraped 0 listings
+2025-05-29 20:11:22,182 - bat_scraper - INFO - Saved 0 vehicles to /Users/edward/Desktop/Projects/Findmycar2/scripts/../src/data/bat_listings.json

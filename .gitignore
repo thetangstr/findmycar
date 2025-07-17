@@ -1,0 +1,87 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# firebase
+.firebase/
+
+# build output
+build/
+dist/
+.next/
+out/
+
+# cache
+.cache/
+.firebase/*.cache
+functions/node_modules/
+next/standalone/node_modules/
+
+# Python Scraper
+python_scraper/venv/
+python_scraper/serviceAccountKey.json
+
+# Firebase service accounts
+*-firebase-adminsdk-*.json
+service-account.json
+
+# Generated files
+*.log
+new_build_log.txt
+explore-layout.html
+
+# Scripts and temporary files
+scripts/
+src/scripts/
+
+# Large media files
+public/images/
+public/vehicle-images/
+public/logo/
+
+# Archived services
+src/services/archived/
+
+# Test screenshots
+final-test-screenshots/
+test-screenshots/
+
+# Root directory images
+*.png
+
+# Root directory test files
+*.js
+
+# Backup files
+*.backup

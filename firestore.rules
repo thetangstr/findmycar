@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow public read access to the cars_collection for the web app
+    match /cars_collection/{carId} {
+      allow read: if true;
+      allow write: if false; // Keep writes restricted
+    }
+
+    // Default rules for other collections can be added here.
+    // For example, to restrict user data:
+    // match /users/{userId} {
+    //   allow read, write: if request.auth != null && request.auth.uid == userId;
+    // }
+  }
+}
