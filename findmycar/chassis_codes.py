@@ -90,9 +90,12 @@ def parse_chassis_code(query: str) -> dict:
     """
     query_upper = query.upper()
     
-    # Look for chassis codes in the query
+    # Look for chassis codes in the query with word boundaries
     for code, info in CHASSIS_CODES.items():
-        if code in query_upper:
+        # Use word boundaries to prevent partial matches (e.g., "ND" in "HONDA")
+        import re
+        pattern = r'\b' + re.escape(code) + r'\b'
+        if re.search(pattern, query_upper):
             return {
                 'make': info['make'],
                 'model': info['model'],

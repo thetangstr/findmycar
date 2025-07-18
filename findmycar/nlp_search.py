@@ -18,9 +18,15 @@ def parse_natural_language_query(query: str) -> Dict[str, Optional[str]]:
         'year_max': None,
         'price_min': None,
         'price_max': None,
+        'mileage_min': None,
+        'mileage_max': None,
         'body_style': None,
         'fuel_type': None,
         'transmission': None,
+        'exterior_color': None,
+        'exclude_colors': [],
+        'trim': None,
+        'drivetrain': None,
         'sources': None,  # Add sources filter
         'parsed_query': query
     }
@@ -41,8 +47,11 @@ def parse_natural_language_query(query: str) -> Dict[str, Optional[str]]:
     # Rule-based parsing for common patterns (don't override chassis code results)
     rule_based = _rule_based_parsing(query)
     for key, value in rule_based.items():
+        # Special handling for lists like exclude_colors
+        if key == 'exclude_colors' and isinstance(value, list):
+            filters[key].extend(value)
         # Only update if not already set by chassis code
-        if filters.get(key) is None and value is not None:
+        elif filters.get(key) is None and value is not None:
             filters[key] = value
     
     # AI parsing is currently disabled due to outdated OpenAI API
@@ -62,7 +71,9 @@ def _rule_based_parsing(query: str) -> Dict[str, Optional[str]]:
     """
     Extract structured data from query using regex patterns.
     """
-    filters = {}
+    filters = {
+        'exclude_colors': []  # Initialize as empty list
+    }
     query_lower = query.lower()
     
     # Extract source filters first (e.g., "source:ebay" or "from:cargurus")
@@ -134,13 +145,19 @@ def _rule_based_parsing(query: str) -> Dict[str, Optional[str]]:
                 filters['year_max'] = year
             break
     
-    # Extract price ranges (more specific to avoid year conflicts)
+    # Extract price ranges (more specific to avoid year conflicts and mileage conflicts)
     price_patterns = [
-        r'under\s*\$(\d+(?:,\d+)*(?:k|000)?)',
-        r'below\s*\$(\d+(?:,\d+)*(?:k|000)?)', 
-        r'less than\s*\$(\d+(?:,\d+)*(?:k|000)?)',
+        r'under\s*\$(\d+(?:,\d+)*(?:k|000)?)',  # Must have dollar sign
+        r'below\s*\$(\d+(?:,\d+)*(?:k|000)?)',  # Must have dollar sign
+        r'less than\s*\$(\d+(?:,\d+)*(?:k|000)?)',  # Must have dollar sign
+        r'under\s+(\d+k)',  # Handle "under 40k" without dollar sign
+        r'below\s+(\d+k)',  # Handle "below 40k" without dollar sign
         r'\$(\d+(?:,\d+)*(?:k|000)?)\s*-\s*\$(\d+(?:,\d+)*(?:k|000)?)',
         r'between\s*\$(\d+(?:,\d+)*(?:k|000)?)\s*and\s*\$(\d+(?:,\d+)*(?:k|000)?)',
+        r'under\s*(\d+(?:,\d+)*(?:k|000)?)\s*(?:dollars?|bucks?)',  # Followed by money words
+        r'below\s*(\d+(?:,\d+)*(?:k|000)?)\s*(?:dollars?|bucks?)',  # Followed by money words
+        r'budget\s*(?:of\s*)?(\d+(?:,\d+)*(?:k|000)?)',
+        r'price\s*(?:range\s*)?(?:under\s*)?(\d+(?:,\d+)*(?:k|000)?)',
         r'\$?(\d{4,}(?:,\d+)*(?:k|000)?)\s*-\s*\$?(\d{4,}(?:,\d+)*(?:k|000)?)',  # 4+ digits for prices
     ]
     
@@ -165,6 +182,37 @@ def _rule_based_parsing(query: str) -> Dict[str, Optional[str]]:
                 filters['price_min'] = _parse_price_value(match.group(1))
                 if len(match.groups()) > 1 and match.group(2):
                     filters['price_max'] = _parse_price_value(match.group(2))
+            break
+    
+    # Extract mileage ranges (similar to price patterns)
+    mileage_patterns = [
+        r'under\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'below\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'less than\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'(\d+(?:,\d+)*(?:k|000)?)\s*-\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'between\s*(\d+(?:,\d+)*(?:k|000)?)\s*and\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'(\d+(?:,\d+)*(?:k|000)?)\s*to\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'max\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'maximum\s*(\d+(?:,\d+)*(?:k|000)?)\s*miles?',
+        r'high\s*mileage',  # Special case for high mileage
+        r'low\s*mileage',   # Special case for low mileage
+    ]
+    
+    for pattern in mileage_patterns:
+        match = re.search(pattern, query_lower)
+        if match:
+            if 'high' in pattern and 'mileage' in pattern:
+                filters['mileage_min'] = 100000  # Consider high mileage as 100k+
+            elif 'low' in pattern and 'mileage' in pattern:
+                filters['mileage_max'] = 50000   # Consider low mileage as under 50k
+            elif 'under' in pattern or 'below' in pattern or 'less than' in pattern or 'max' in pattern:
+                if match.groups():  # Check if there are groups
+                    filters['mileage_max'] = _parse_mileage_value(match.group(1))
+            else:
+                if match.groups():  # Check if there are groups
+                    filters['mileage_min'] = _parse_mileage_value(match.group(1))
+                    if len(match.groups()) > 1 and match.group(2):
+                        filters['mileage_max'] = _parse_mileage_value(match.group(2))
             break
     
     # Extract common makes and models
@@ -218,6 +266,47 @@ def _rule_based_parsing(query: str) -> Dict[str, Optional[str]]:
         if filters.get('body_style'):
             break
     
+    # Extract colors (including negative conditions)
+    colors = {
+        'black': ['black', 'ebony', 'onyx', 'midnight'],
+        'white': ['white', 'pearl', 'snow', 'ivory'],
+        'silver': ['silver', 'gray', 'grey', 'metallic'],
+        'red': ['red', 'crimson', 'burgundy', 'maroon', 'ruby'],
+        'blue': ['blue', 'navy', 'azure', 'cobalt', 'sapphire'],
+        'green': ['green', 'emerald', 'forest', 'lime', 'mint'],
+        'yellow': ['yellow', 'gold', 'golden', 'amber'],
+        'orange': ['orange', 'copper', 'bronze'],
+        'brown': ['brown', 'tan', 'beige', 'mocha', 'chocolate'],
+        'purple': ['purple', 'violet', 'plum', 'lavender']
+    }
+    
+    # Check for negative color conditions first
+    exclude_patterns = [
+        r'not\s+(\w+)',
+        r'no\s+(\w+)',
+        r'except\s+(\w+)',
+        r'exclude\s+(\w+)',
+        r'without\s+(\w+)'
+    ]
+    
+    for pattern in exclude_patterns:
+        matches = re.findall(pattern, query_lower)
+        for match in matches:
+            for color, keywords in colors.items():
+                if match in keywords:
+                    filters['exclude_colors'].append(color)
+                    break
+    
+    # Then check for positive color preferences
+    for color, keywords in colors.items():
+        if color not in filters['exclude_colors']:  # Don't set if excluded
+            for keyword in keywords:
+                if keyword in query_lower and f'not {keyword}' not in query_lower and f'no {keyword}' not in query_lower:
+                    filters['exterior_color'] = color
+                    break
+            if filters.get('exterior_color'):
+                break
+    
     # Extract fuel types
     fuel_types = {
         'electric': ['electric', 'ev', 'battery'],
@@ -235,10 +324,41 @@ def _rule_based_parsing(query: str) -> Dict[str, Optional[str]]:
             break
     
     # Extract transmission
-    if any(word in query_lower for word in ['manual', 'stick', 'standard', '6-speed manual', '5-speed manual']):
+    if any(word in query_lower for word in ['manual', 'stick', 'standard', '6-speed manual', '5-speed manual', '5 speed', '6 speed', 'mt']):
         filters['transmission'] = 'manual'
-    elif any(word in query_lower for word in ['automatic', 'auto', 'cvt']):
+    elif any(word in query_lower for word in ['automatic', 'auto', 'cvt', 'at']):
         filters['transmission'] = 'automatic'
+    
+    # Extract drivetrain types
+    drivetrain_types = {
+        'awd': ['awd', 'all wheel drive', 'all-wheel drive', 'all wheel', '4matic', 'xdrive', 'quattro'],
+        '4wd': ['4wd', '4x4', 'four wheel drive', '4 wheel drive'],
+        'fwd': ['fwd', 'front wheel drive', 'front-wheel drive'],
+        'rwd': ['rwd', 'rear wheel drive', 'rear-wheel drive']
+    }
+    
+    for drivetrain, keywords in drivetrain_types.items():
+        for keyword in keywords:
+            if keyword in query_lower:
+                filters['drivetrain'] = drivetrain
+                break
+        if filters.get('drivetrain'):
+            break
+    
+    # Extract trim levels (common patterns)
+    trim_patterns = [
+        r'\b(base|sport|touring|limited|premium|luxury|executive|platinum)\b',
+        r'\b(lx|ex|ex-l|si|type r|type s)\b',  # Honda trims
+        r'\b(s|se|sel|ses|titanium)\b',  # Ford trims
+        r'\b(ls|lt|ltz|premier|rs|ss|zl1)\b',  # Chevy trims
+        r'\b(sr|sr5|trd|xle|xse|le)\b',  # Toyota trims
+    ]
+    
+    for pattern in trim_patterns:
+        match = re.search(pattern, query_lower)
+        if match:
+            filters['trim'] = match.group(1).upper()
+            break
     
     return filters
 
@@ -250,6 +370,15 @@ def _parse_price_value(price_str: str) -> int:
     if price_str.endswith('k'):
         return int(float(price_str[:-1]) * 1000)
     return int(price_str)
+
+def _parse_mileage_value(mileage_str: str) -> int:
+    """
+    Parse mileage string like '100k', '100,000', '100000' into integer.
+    """
+    mileage_str = mileage_str.replace(',', '').lower()
+    if mileage_str.endswith('k'):
+        return int(float(mileage_str[:-1]) * 1000)
+    return int(mileage_str)
 
 def _ai_parsing(query: str) -> Dict[str, Optional[str]]:
     """

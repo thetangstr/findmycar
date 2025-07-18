@@ -10,6 +10,7 @@ from truecar_client import search_truecar_listings
 from autotrader_client import search_autotrader_listings, AutotraderClient
 from valuation import valuation_service
 from ai_questions import question_generator
+from vehicle_attribute_inference import VehicleAttributeInferencer
 from cache import (
     get_cached_search_results, cache_search_results, 
     get_cached_valuation, cache_valuation,
@@ -1049,6 +1050,31 @@ def ingest_data(db: Session, query: str = "electric car", filters=None, limit=50
                 # except Exception as e:
                 #     logger.warning(f"Question generation failed for {make} {model} {year}: {e}")
 
+                # Prepare data for inference
+                vehicle_data_for_inference = {
+                    'title': item.get("title"),
+                    'model': model,
+                    'description': item.get('shortDescription', ''),
+                    'item_specifics': {
+                        'Body Type': get_aspect_value(aspects, 'Body Type'),
+                        'Transmission': get_aspect_value(aspects, 'Transmission'),
+                        'Drive Type': get_aspect_value(aspects, 'Drive Type'),
+                        'Fuel Type': get_aspect_value(aspects, 'Fuel Type'),
+                        'Exterior Color': get_aspect_value(aspects, 'Exterior Color'),
+                    }
+                }
+                
+                # Infer attributes using the inference system
+                inferencer = VehicleAttributeInferencer()
+                inferred_attrs = inferencer.infer_attributes(vehicle_data_for_inference, 'ebay')
+                
+                # Use inferred values if direct values are not available
+                body_style = get_aspect_value(aspects, 'Body Type') or inferred_attrs.get('body_style')
+                transmission = get_aspect_value(aspects, 'Transmission') or inferred_attrs.get('transmission')
+                drivetrain = get_aspect_value(aspects, 'Drive Type') or inferred_attrs.get('drivetrain')
+                fuel_type = get_aspect_value(aspects, 'Fuel Type') or inferred_attrs.get('fuel_type')
+                exterior_color = get_aspect_value(aspects, 'Exterior Color') or inferred_attrs.get('exterior_color')
+                
                 vehicle = Vehicle(
                     listing_id=listing_id,
                     title=item.get("title"),
@@ -1062,11 +1088,11 @@ def ingest_data(db: Session, query: str = "electric car", filters=None, limit=50
                     mileage=mileage,
                     trim=trim,
                     condition=condition,
-                    body_style=get_aspect_value(aspects, 'Body Type'),
-                    transmission=get_aspect_value(aspects, 'Transmission'),
-                    drivetrain=get_aspect_value(aspects, 'Drive Type'),
-                    fuel_type=get_aspect_value(aspects, 'Fuel Type'),
-                    exterior_color=get_aspect_value(aspects, 'Exterior Color'),
+                    body_style=body_style,
+                    transmission=transmission,
+                    drivetrain=drivetrain,
+                    fuel_type=fuel_type,
+                    exterior_color=exterior_color,
                     interior_color=get_aspect_value(aspects, 'Interior Color'),
                     vin=get_aspect_value(aspects, 'Vehicle Identification Number (VIN)'),
                     vehicle_details=item,  # Store raw item data

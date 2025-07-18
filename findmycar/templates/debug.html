@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGPT - Search Debug</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .debug-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .json-display {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .empty-value {
+            color: #dc3545;
+            font-style: italic;
+        }
+        .populated-value {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car"></i> CarGPT Debug
+            </a>
+            <a href="/" class="btn btn-primary">Back to Search</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Search Debug Tool</h1>
+        
+        <!-- Search Form -->
+        <div class="debug-section">
+            <h3>Test Query Parser</h3>
+            <form method="get" action="/debug">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Enter search query (e.g., 'suv under 40k')" value="{{ query }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Parse Query</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% if query %}
+        <!-- NLP Results -->
+        <div class="debug-section">
+            <h3>NLP Parser Results for: "{{ query }}"</h3>
+            <div class="json-display">
+                <pre>{{ nlp_results | tojson(indent=2) }}</pre>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        {% if search_results %}
+        <div class="debug-section">
+            <h3>Search Results</h3>
+            <div class="alert {% if search_results.match_count > 0 %}alert-success{% else %}alert-warning{% endif %}">
+                <strong>Matches Found:</strong> {{ search_results.match_count }} vehicles
+            </div>
+            
+            <h5>Applied Filters:</h5>
+            <table class="table table-sm">
+                {% for key, value in search_results.filters.items() %}
+                <tr>
+                    <td><strong>{{ key }}:</strong></td>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% if search_results.match_count == 0 %}
+            <div class="alert alert-info">
+                <h5>Why 0 results?</h5>
+                <p>The filters are working correctly, but the database doesn't have vehicles with the requested attributes populated.</p>
+                <p>For "SUV under 40k", the issue is that <code>body_style</code> field is empty for all vehicles.</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Database Statistics -->
+        <div class="debug-section">
+            <h3>Database Statistics</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Query</th>
+                        <th>Count</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for query_name, count in sample_queries %}
+                    <tr>
+                        <td>{{ query_name }}</td>
+                        <td>{{ count }}</td>
+                        <td>
+                            {% if count > 0 %}
+                            <span class="populated-value">✓ Has data</span>
+                            {% else %}
+                            <span class="empty-value">✗ No data</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Unique Values -->
+        <div class="debug-section">
+            <h3>Available Values in Database</h3>
+            
+            <h5>Makes ({{ unique_values.makes | length }} unique)</h5>
+            <div class="mb-3">
+                {% for make in unique_values.makes[:10] %}
+                <span class="badge badge-primary mr-1">{{ make[0] }}</span>
+                {% endfor %}
+                {% if unique_values.makes | length > 10 %}
+                <span class="text-muted">... and {{ unique_values.makes | length - 10 }} more</span>
+                {% endif %}
+            </div>
+
+            <h5>Body Styles</h5>
+            <div class="mb-3">
+                {% if unique_values.body_styles %}
+                    {% for style in unique_values.body_styles %}
+                    <span class="badge badge-info mr-1">{{ style[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span class="empty-value">No body styles in database</span>
+                {% endif %}
+            </div>
+
+            <h5>Colors</h5>
+            <div class="mb-3">
+                {% if unique_values.colors %}
+                    {% for color in unique_values.colors %}
+                    <span class="badge badge-warning mr-1">{{ color[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span class="empty-value">No colors in database</span>
+                {% endif %}
+            </div>
+
+            <h5>Transmissions</h5>
+            <div class="mb-3">
+                {% if unique_values.transmissions %}
+                    {% for trans in unique_values.transmissions %}
+                    <span class="badge badge-secondary mr-1">{{ trans[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span class="empty-value">No transmission data in database</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sample Vehicle Data -->
+        <div class="debug-section">
+            <h3>Sample Vehicle Records</h3>
+            <p>Showing how vehicle data is stored:</p>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Make</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Price</th>
+                            <th>Body Style</th>
+                            <th>Color</th>
+                            <th>Transmission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vehicle in sample_vehicles %}
+                        <tr>
+                            <td>{{ vehicle.id }}</td>
+                            <td>{{ vehicle.make }}</td>
+                            <td>{{ vehicle.model }}</td>
+                            <td>{{ vehicle.year }}</td>
+                            <td>${{ "{:,.0f}".format(vehicle.price) if vehicle.price else "N/A" }}</td>
+                            <td>
+                                {% if vehicle.body_style %}
+                                <span class="populated-value">{{ vehicle.body_style }}</span>
+                                {% else %}
+                                <span class="empty-value">empty</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if vehicle.exterior_color %}
+                                <span class="populated-value">{{ vehicle.exterior_color }}</span>
+                                {% else %}
+                                <span class="empty-value">empty</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if vehicle.transmission %}
+                                <span class="populated-value">{{ vehicle.transmission }}</span>
+                                {% else %}
+                                <span class="empty-value">empty</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Common Queries -->
+        <div class="debug-section">
+            <h3>Try These Queries</h3>
+            <p>Click to test different search queries:</p>
+            <div class="list-group">
+                <a href="/debug?q=suv+under+40k" class="list-group-item list-group-item-action">
+                    "suv under 40k" - Tests body style and price filtering
+                </a>
+                <a href="/debug?q=red+honda+civic+automatic" class="list-group-item list-group-item-action">
+                    "red honda civic automatic" - Tests color, make, model, and transmission
+                </a>
+                <a href="/debug?q=electric+car+not+green" class="list-group-item list-group-item-action">
+                    "electric car not green" - Tests fuel type and negative color condition
+                </a>
+                <a href="/debug?q=awd+sport+sedan" class="list-group-item list-group-item-action">
+                    "awd sport sedan" - Tests drivetrain, trim, and body style
+                </a>
+                <a href="/debug?q=honda+civic+under+20k" class="list-group-item list-group-item-action">
+                    "honda civic under 20k" - Should find results (make/model/price only)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

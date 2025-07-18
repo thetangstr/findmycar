@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import case
+from sqlalchemy import case, or_, not_
 from database import Vehicle
 import schemas
 
@@ -8,6 +8,11 @@ def get_vehicle(db: Session, vehicle_id: int):
 
 def get_vehicles(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "newest", filters: dict = None):
     query = db.query(Vehicle)
+    
+    # Debug logging
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"🔍 get_vehicles called with filters: {filters}")
     
     # Apply filters if provided
     if filters:
@@ -23,6 +28,34 @@ def get_vehicles(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "n
             query = query.filter(Vehicle.price >= filters['price_min'])
         if filters.get('price_max'):
             query = query.filter(Vehicle.price <= filters['price_max'])
+        if filters.get('mileage_min'):
+            query = query.filter(Vehicle.mileage >= filters['mileage_min'])
+        if filters.get('mileage_max'):
+            query = query.filter(Vehicle.mileage <= filters['mileage_max'])
+        if filters.get('body_style'):
+            query = query.filter(Vehicle.body_style.ilike(f"%{filters['body_style']}%"))
+        if filters.get('exterior_color'):
+            query = query.filter(Vehicle.exterior_color.ilike(f"%{filters['exterior_color']}%"))
+        if filters.get('exclude_colors'):
+            logger.info(f"🎨 Applying exclude_colors filter: {filters['exclude_colors']}")
+            for color in filters['exclude_colors']:
+                # Exclude vehicles that have this color, but include vehicles with no color
+                logger.info(f"  Excluding color: {color}")
+                query = query.filter(
+                    or_(
+                        Vehicle.exterior_color == None,
+                        Vehicle.exterior_color == '',
+                        ~Vehicle.exterior_color.ilike(f"%{color}%")
+                    )
+                )
+        if filters.get('transmission'):
+            query = query.filter(Vehicle.transmission.ilike(f"%{filters['transmission']}%"))
+        if filters.get('fuel_type'):
+            query = query.filter(Vehicle.fuel_type.ilike(f"%{filters['fuel_type']}%"))
+        if filters.get('drivetrain'):
+            query = query.filter(Vehicle.drivetrain.ilike(f"%{filters['drivetrain']}%"))
+        if filters.get('trim'):
+            query = query.filter(Vehicle.trim.ilike(f"%{filters['trim']}%"))
     
     # Apply sorting
     if sort_by == "newest":
@@ -61,6 +94,11 @@ def get_vehicles(db: Session, skip: int = 0, limit: int = 100, sort_by: str = "n
 def get_vehicle_count(db: Session, filters: dict = None):
     query = db.query(Vehicle)
     
+    # Debug logging
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"🔍 get_vehicle_count called with filters: {filters}")
+    
     # Apply filters if provided
     if filters:
         if filters.get('make'):
@@ -75,6 +113,34 @@ def get_vehicle_count(db: Session, filters: dict = None):
             query = query.filter(Vehicle.price >= filters['price_min'])
         if filters.get('price_max'):
             query = query.filter(Vehicle.price <= filters['price_max'])
+        if filters.get('mileage_min'):
+            query = query.filter(Vehicle.mileage >= filters['mileage_min'])
+        if filters.get('mileage_max'):
+            query = query.filter(Vehicle.mileage <= filters['mileage_max'])
+        if filters.get('body_style'):
+            query = query.filter(Vehicle.body_style.ilike(f"%{filters['body_style']}%"))
+        if filters.get('exterior_color'):
+            query = query.filter(Vehicle.exterior_color.ilike(f"%{filters['exterior_color']}%"))
+        if filters.get('exclude_colors'):
+            logger.info(f"🎨 Applying exclude_colors filter: {filters['exclude_colors']}")
+            for color in filters['exclude_colors']:
+                # Exclude vehicles that have this color, but include vehicles with no color
+                logger.info(f"  Excluding color: {color}")
+                query = query.filter(
+                    or_(
+                        Vehicle.exterior_color == None,
+                        Vehicle.exterior_color == '',
+                        ~Vehicle.exterior_color.ilike(f"%{color}%")
+                    )
+                )
+        if filters.get('transmission'):
+            query = query.filter(Vehicle.transmission.ilike(f"%{filters['transmission']}%"))
+        if filters.get('fuel_type'):
+            query = query.filter(Vehicle.fuel_type.ilike(f"%{filters['fuel_type']}%"))
+        if filters.get('drivetrain'):
+            query = query.filter(Vehicle.drivetrain.ilike(f"%{filters['drivetrain']}%"))
+        if filters.get('trim'):
+            query = query.filter(Vehicle.trim.ilike(f"%{filters['trim']}%"))
     
     return query.count()
 

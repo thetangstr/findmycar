@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGPT - Stable Flask Version</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .search-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .vehicle-card {
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+        }
+        .price-badge {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .deal-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car"></i> CarGPT (Stable Flask)
+            </a>
+            <span class="navbar-text">
+                Stable Vehicle Search Platform
+            </span>
+        </div>
+    </nav>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <h2><i class="fas fa-search"></i> Find Your Perfect Vehicle</h2>
+            <form action="/search" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <input type="text" name="query" class="form-control form-control-lg" 
+                               placeholder="e.g., 'Honda Civic EG6', 'Tesla under $40k'" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-warning btn-lg btn-block">
+                            <i class="fas fa-search"></i> Search Vehicles
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Advanced Filters -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" name="make" class="form-control" placeholder="Make">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="model" class="form-control" placeholder="Model">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="year_min" class="form-control" placeholder="Year Min">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="year_max" class="form-control" placeholder="Year Max">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="use_fast_search" checked>
+                            <label class="form-check-label">
+                                Fast Search
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Messages -->
+    <div class="container">
+        {% if message %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Results -->
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3>{{ total_vehicles }} vehicles found</h3>
+                {% if total_pages > 1 %}
+                <p>Page {{ page }} of {{ total_pages }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for vehicle in vehicles %}
+            <div class="col-md-4">
+                <div class="card vehicle-card">
+                    {% if vehicle.deal_rating and vehicle.deal_rating|int >= 8 %}
+                    <span class="badge badge-success deal-badge">Great Deal!</span>
+                    {% endif %}
+                    
+                    {% if vehicle.image_urls and vehicle.image_urls|length > 0 %}
+                    <img src="{{ vehicle.image_urls[0] }}" class="card-img-top" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                        <i class="fas fa-car fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h5>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <span class="badge badge-primary price-badge">${{ "{:,.0f}".format(vehicle.price) }}</span>
+                            </div>
+                            <div class="col-6 text-right">
+                                {% if vehicle.mileage %}
+                                <small class="text-muted">{{ "{:,}".format(vehicle.mileage) }} miles</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if vehicle.condition %}
+                        <p class="card-text">
+                            <small class="text-muted">Condition: {{ vehicle.condition }}</small>
+                        </p>
+                        {% endif %}
+                        
+                        {% if vehicle.exterior_color %}
+                        <p class="card-text">
+                            <small class="text-muted">Color: {{ vehicle.exterior_color }}</small>
+                        </p>
+                        {% endif %}
+                        
+                        <a href="{{ vehicle.view_item_url }}" class="btn btn-primary btn-block" target="_blank">
+                            <i class="fas fa-external-link-alt"></i> View on eBay
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page - 1 }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page + 1 }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
