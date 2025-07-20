@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}FindMyCar - AI-Powered Vehicle Discovery{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/styles.css">
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+    }
+    
+    .search-section {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+    }
+    
+    .feature-card {
+        padding: 20px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .user-welcome {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+    }
+    
+    .authenticated .user-welcome {
+        display: block;
+    }
+    
+    .saved-searches {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4 mb-4">
+            <i class="bi bi-car-front"></i> Find Your Perfect Car
+        </h1>
+        <p class="lead">AI-powered search across multiple platforms</p>
+    </div>
+</section>
+
+<!-- Main Container -->
+<div class="container">
+    <!-- User Welcome Message -->
+    <div class="user-welcome" id="userWelcome">
+        <h5>Welcome back, <span id="welcomeUserName"></span>!</h5>
+        <p class="mb-0">Your personalized car search experience awaits.</p>
+    </div>
+    
+    <!-- Search Section -->
+    <div class="search-section">
+        <h2 class="mb-4">What car are you looking for?</h2>
+        
+        <!-- Search Form -->
+        <form id="searchForm" action="/search/async" method="post" onsubmit="return handleSearchSubmit(event)">
+            <div class="form-group">
+                <label for="naturalQuery">Describe your ideal car:</label>
+                <textarea class="form-control" id="naturalQuery" name="natural_query" rows="3" 
+                    placeholder="Example: I need a reliable SUV under $25,000 with good fuel economy for my family">{{ request.form.get('natural_query', '') }}</textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="make">Make (Optional)</label>
+                        <input type="text" class="form-control" id="make" name="make" 
+                            placeholder="e.g., Toyota, Honda" value="{{ request.form.get('make', '') }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="model">Model (Optional)</label>
+                        <input type="text" class="form-control" id="model" name="model" 
+                            placeholder="e.g., Camry, Accord" value="{{ request.form.get('model', '') }}">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="minPrice">Min Price</label>
+                        <input type="number" class="form-control" id="minPrice" name="min_price" 
+                            placeholder="10000" value="{{ request.form.get('min_price', '') }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="maxPrice">Max Price</label>
+                        <input type="number" class="form-control" id="maxPrice" name="max_price" 
+                            placeholder="50000" value="{{ request.form.get('max_price', '') }}">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                <i class="bi bi-search"></i> Search Vehicles
+            </button>
+        </form>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <h5><i class="bi bi-robot"></i> AI-Powered Search</h5>
+                <p>Natural language processing understands exactly what you're looking for.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <h5><i class="bi bi-database"></i> Multiple Sources</h5>
+                <p>Search across eBay Motors, CarMax, AutoTrader, and more platforms.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <h5><i class="bi bi-graph-up"></i> Smart Valuation</h5>
+                <p>Get AI-powered price analysis and market comparisons.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Saved Searches (for authenticated users) -->
+    <div class="saved-searches" id="savedSearches" style="display: none;">
+        <h4>Your Recent Searches</h4>
+        <div id="recentSearchesList">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Search Progress Modal -->
+<div class="modal fade" id="searchProgressModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <h5>Searching for vehicles...</h5>
+                <p class="mb-0" id="searchProgressText">Connecting to data sources...</p>
+                <div class="progress mt-3">
+                    <div id="searchProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Listen for auth changes
+window.addEventListener('auth-change', (event) => {
+    const { user, isAuthenticated } = event.detail;
+    
+    if (isAuthenticated) {
+        document.body.classList.add('authenticated');
+        document.getElementById('welcomeUserName').textContent = user.display_name || user.email;
+        loadRecentSearches();
+    } else {
+        document.body.classList.remove('authenticated');
+        document.getElementById('savedSearches').style.display = 'none';
+    }
+});
+
+// Handle search form submission
+async function handleSearchSubmit(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const searchProgressModal = new bootstrap.Modal(document.getElementById('searchProgressModal'));
+    searchProgressModal.show();
+    
+    try {
+        // If authenticated, use authenticated fetch
+        const headers = {};
+        if (window.FirebaseAuth && window.FirebaseAuth.isAuthenticated()) {
+            const token = window.FirebaseAuth.getAccessToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+        
+        const response = await fetch('/search/async', {
+            method: 'POST',
+            body: formData,
+            headers: headers
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            window.location.href = result.redirect_url;
+        } else {
+            throw new Error('Search failed');
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        searchProgressModal.hide();
+        alert('Search failed. Please try again.');
+    }
+}
+
+// Load recent searches for authenticated users
+async function loadRecentSearches() {
+    if (!window.FirebaseAuth || !window.FirebaseAuth.isAuthenticated()) {
+        return;
+    }
+    
+    try {
+        const response = await window.FirebaseAuth.authenticatedFetch('/api/user/searches');
+        if (response.ok) {
+            const searches = await response.json();
+            displayRecentSearches(searches);
+        }
+    } catch (error) {
+        console.error('Failed to load recent searches:', error);
+    }
+}
+
+// Display recent searches
+function displayRecentSearches(searches) {
+    const container = document.getElementById('recentSearchesList');
+    const savedSearchesDiv = document.getElementById('savedSearches');
+    
+    if (searches.length === 0) {
+        savedSearchesDiv.style.display = 'none';
+        return;
+    }
+    
+    savedSearchesDiv.style.display = 'block';
+    container.innerHTML = searches.slice(0, 5).map(search => `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <strong>${search.query}</strong>
+                <small class="text-muted d-block">${new Date(search.created_at).toLocaleDateString()}</small>
+            </div>
+            <a href="${search.url}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-arrow-repeat"></i> Search Again
+            </a>
+        </div>
+    `).join('');
+}
+
+// Update search progress
+let progressInterval;
+function updateSearchProgress() {
+    let progress = 0;
+    const progressBar = document.getElementById('searchProgressBar');
+    const progressText = document.getElementById('searchProgressText');
+    
+    progressInterval = setInterval(() => {
+        progress += 10;
+        if (progress > 90) progress = 90;
+        
+        progressBar.style.width = progress + '%';
+        
+        if (progress < 30) {
+            progressText.textContent = 'Connecting to data sources...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Searching eBay Motors...';
+        } else {
+            progressText.textContent = 'Analyzing results...';
+        }
+    }, 500);
+}
+
+// Start progress when form is submitted
+document.getElementById('searchForm').addEventListener('submit', () => {
+    updateSearchProgress();
+});
+</script>
+{% endblock %}

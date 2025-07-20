@@ -1,0 +1,338 @@
+{
+  "warnings": [
+    {
+      "errorId": 12002,
+      "domain": "API_BROWSE",
+      "category": "REQUEST",
+      "message": "The price filter value is invalid. For the valid values, refer to the API call documentation.",
+      "parameters": [
+        {
+          "name": "fieldName",
+          "value": "price"
+        },
+        {
+          "name": "filterValue",
+          "value": "[0..35000]"
+        }
+      ]
+    },
+    {
+      "errorId": 12012,
+      "domain": "API_BROWSE",
+      "category": "REQUEST",
+      "message": "A valid 'price' filter and a valid 'priceCurrency' filter is necessary to filter based on price."
+    }
+  ],
+  "href": "https://api.ebay.com/buy/browse/v1/item_summary/search?q=Honda&limit=3&category_ids=6001&filter=buyingOptions%3A%7BFIXED_PRICE%7D%2CitemLocationCountry%3AUS&sort=price&offset=0",
+  "total": 303,
+  "next": "https://api.ebay.com/buy/browse/v1/item_summary/search?q=Honda&limit=3&category_ids=6001&filter=buyingOptions%3A%7BFIXED_PRICE%7D%2CitemLocationCountry%3AUS&sort=price&offset=3",
+  "limit": 3,
+  "offset": 0,
+  "itemSummaries": [
+    {
+      "itemId": "v1|326688019768|0",
+      "title": "2009 Honda Fit ",
+      "leafCategoryIds": [
+        "149416"
+      ],
+      "categories": [
+        {
+          "categoryId": "149416",
+          "categoryName": "Fit"
+        },
+        {
+          "categoryId": "6000",
+          "categoryName": "eBay Motors"
+        },
+        {
+          "categoryId": "6001",
+          "categoryName": "Cars & Trucks"
+        },
+        {
+          "categoryId": "6252",
+          "categoryName": "Honda"
+        }
+      ],
+      "image": {
+        "imageUrl": "https://i.ebayimg.com/images/g/89cAAeSwKBpn7Z1Z/s-l225.jpg"
+      },
+      "price": {
+        "value": "500.00",
+        "currency": "USD"
+      },
+      "itemHref": "https://api.ebay.com/buy/browse/v1/item/v1%7C326688019768%7C0",
+      "seller": {
+        "username": "buildingerecter",
+        "feedbackPercentage": "100.0",
+        "feedbackScore": 1927
+      },
+      "condition": "Used",
+      "conditionId": "3000",
+      "thumbnailImages": [
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/89cAAeSwKBpn7Z1Z/s-l1600.jpg"
+        }
+      ],
+      "pickupOptions": [
+        {
+          "pickupLocationType": "ARRANGED_LOCATION"
+        }
+      ],
+      "buyingOptions": [
+        "FIXED_PRICE",
+        "BEST_OFFER"
+      ],
+      "itemWebUrl": "https://www.ebay.com/itm/326688019768?_skw=Honda&hash=item4c101f9538:g:89cAAeSwKBpn7Z1Z",
+      "itemLocation": {
+        "postalCode": "258**",
+        "country": "US"
+      },
+      "additionalImages": [
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/gbAAAeSwFXpn7Z1l/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/zM4AAeSw2yFn7Z1l/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/k1sAAeSw5PVn7Z1f/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/rpsAAeSwy21n7Z1i/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/0TQAAeSwXKNn7Z1p/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/2M4AAeSw4XBn7Z1r/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/~4gAAeSwzE1n7Z1p/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/KH4AAeSwXURn7Z1r/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/c8AAAeSwlcln7Z1u/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/oBYAAeSwuQxn7Z1w/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/h20AAeSwtu5n7Z1w/s-l225.jpg"
+        }
+      ],
+      "adultOnly": false,
+      "legacyItemId": "326688019768",
+      "availableCoupons": false,
+      "itemOriginDate": "2025-04-05T01:12:34.000Z",
+      "itemCreationDate": "2025-07-16T00:42:01.000Z",
+      "topRatedBuyingExperience": false,
+      "priorityListing": false
+    },
+    {
+      "itemId": "v1|257021038096|0",
+      "title": "1998 Honda Civic LX",
+      "leafCategoryIds": [
+        "6256"
+      ],
+      "categories": [
+        {
+          "categoryId": "6256",
+          "categoryName": "Civic"
+        },
+        {
+          "categoryId": "6000",
+          "categoryName": "eBay Motors"
+        },
+        {
+          "categoryId": "6001",
+          "categoryName": "Cars & Trucks"
+        },
+        {
+          "categoryId": "6252",
+          "categoryName": "Honda"
+        }
+      ],
+      "image": {
+        "imageUrl": "https://i.ebayimg.com/images/g/FsUAAeSwPAJoaxCL/s-l225.jpg"
+      },
+      "price": {
+        "value": "500.00",
+        "currency": "USD"
+      },
+      "itemHref": "https://api.ebay.com/buy/browse/v1/item/v1%7C257021038096%7C0",
+      "seller": {
+        "username": "eparts1971",
+        "feedbackPercentage": "100.0",
+        "feedbackScore": 6443
+      },
+      "condition": "Used",
+      "conditionId": "3000",
+      "thumbnailImages": [
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/FsUAAeSwPAJoaxCL/s-l1600.jpg"
+        }
+      ],
+      "pickupOptions": [
+        {
+          "pickupLocationType": "ARRANGED_LOCATION"
+        }
+      ],
+      "buyingOptions": [
+        "FIXED_PRICE"
+      ],
+      "itemWebUrl": "https://www.ebay.com/itm/257021038096?_skw=Honda&hash=item3bd7a5ce10:g:FsUAAeSwPAJoaxCL",
+      "itemLocation": {
+        "postalCode": "600**",
+        "country": "US"
+      },
+      "additionalImages": [
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/dPsAAeSwICZoaxCV/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/YBIAAeSwQN5oaxCO/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/GioAAeSwrF5oaxCP/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/bVMAAeSw2pZoaxCR/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/XOQAAeSw9kloaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/IkQAAeSwQOJoaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/juUAAeSw1sJoaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/3~MAAeSw58hoaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/GXIAAeSwFgZoaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/BE4AAeSwXOdoaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/Fr8AAeSwVTloaxCN/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/OJgAAeSwfTBoaxCS/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/bH8AAeSwD-5oaxCT/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/eXwAAeSwBAloaxCU/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/hFYAAeSwtsZoaxCK/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/X28AAeSwdpxoaxCL/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/eMAAAeSwYVFoaxCL/s-l225.jpg"
+        }
+      ],
+      "adultOnly": false,
+      "legacyItemId": "257021038096",
+      "availableCoupons": false,
+      "itemOriginDate": "2025-07-07T01:06:41.000Z",
+      "itemCreationDate": "2025-07-17T17:23:11.000Z",
+      "topRatedBuyingExperience": false,
+      "priorityListing": false
+    },
+    {
+      "itemId": "v1|376412744875|0",
+      "title": "2004 Honda Accord EX",
+      "leafCategoryIds": [
+        "6254"
+      ],
+      "categories": [
+        {
+          "categoryId": "6254",
+          "categoryName": "Accord"
+        },
+        {
+          "categoryId": "6000",
+          "categoryName": "eBay Motors"
+        },
+        {
+          "categoryId": "6001",
+          "categoryName": "Cars & Trucks"
+        },
+        {
+          "categoryId": "6252",
+          "categoryName": "Honda"
+        }
+      ],
+      "image": {
+        "imageUrl": "https://i.ebayimg.com/images/g/Ci0AAeSw1BpoeXBD/s-l225.jpg"
+      },
+      "price": {
+        "value": "700.00",
+        "currency": "USD"
+      },
+      "itemHref": "https://api.ebay.com/buy/browse/v1/item/v1%7C376412744875%7C0",
+      "seller": {
+        "username": "blakdawg91",
+        "feedbackPercentage": "0.0",
+        "feedbackScore": 0
+      },
+      "condition": "Used",
+      "conditionId": "3000",
+      "thumbnailImages": [
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/Ci0AAeSw1BpoeXBD/s-l1600.jpg"
+        }
+      ],
+      "pickupOptions": [
+        {
+          "pickupLocationType": "ARRANGED_LOCATION"
+        }
+      ],
+      "buyingOptions": [
+        "FIXED_PRICE",
+        "BEST_OFFER"
+      ],
+      "itemWebUrl": "https://www.ebay.com/itm/376412744875?_skw=Honda&hash=item57a3f2acab:g:Ci0AAeSw1BpoeXBD",
+      "itemLocation": {
+        "postalCode": "275**",
+        "country": "US"
+      },
+      "additionalImages": [
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/fhkAAeSwzGdoeXBG/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/bZwAAeSw4ehoeXBG/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/evMAAeSwI0VoeXBG/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/aSAAAeSw~k5oeXBG/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/beQAAeSwfX1oeXBH/s-l225.jpg"
+        },
+        {
+          "imageUrl": "https://i.ebayimg.com/images/g/0ZYAAeSw3fdoeXBH/s-l225.jpg"
+        }
+      ],
+      "adultOnly": false,
+      "legacyItemId": "376412744875",
+      "availableCoupons": false,
+      "itemOriginDate": "2025-07-17T23:20:45.000Z",
+      "itemCreationDate": "2025-07-17T23:21:45.000Z",
+      "topRatedBuyingExperience": false,
+      "priorityListing": false
+    }
+  ]
+}

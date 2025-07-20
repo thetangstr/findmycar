@@ -162,13 +162,13 @@ docker exec postgres pg_stat_activity
 ### Verify Monitoring
 ```bash
 # Check logs
-tail -f logs/cargpt.log
+tail -f logs/findmycar.log
 
 # Test error tracking
 curl https://yourapp.com/nonexistent-page
 
 # Verify metrics
-curl https://yourapp.com/api/stats
+curl https://yourapp.com/metrics
 ```
 
 ## Emergency Procedures

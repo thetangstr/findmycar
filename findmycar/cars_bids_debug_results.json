@@ -1,0 +1,394 @@
+[
+  {
+    "endpoint": "https://carsandbids.com/api/v2/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 1,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v1/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 1,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/auctions",
+    "status_code": 400,
+    "content_type": "application/json",
+    "content_length": 17,
+    "headers_used": 1,
+    "response_preview": "{\"error_code\": 4}"
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v2/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v2/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x1067488c0>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 1
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v1/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v1/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x1067487a0>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 1
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x106749310>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 1
+  },
+  {
+    "endpoint": "https://carsandbids.com/graphql",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/public/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/data/auctions.json",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 1,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v2/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 2,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v1/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 2,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/auctions",
+    "status_code": 400,
+    "content_type": "application/json",
+    "content_length": 17,
+    "headers_used": 2,
+    "response_preview": "{\"error_code\": 4}"
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v2/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v2/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674ab70>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 2
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v1/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v1/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x106749370>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 2
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674b110>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 2
+  },
+  {
+    "endpoint": "https://carsandbids.com/graphql",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/public/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/data/auctions.json",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 2,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v2/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 3,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v1/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 3,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/auctions",
+    "status_code": 400,
+    "content_type": "application/json",
+    "content_length": 17,
+    "headers_used": 3,
+    "response_preview": "{\"error_code\": 4}"
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v2/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v2/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674afc0>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 3
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v1/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v1/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674acf0>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 3
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674a870>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 3
+  },
+  {
+    "endpoint": "https://carsandbids.com/graphql",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/public/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/data/auctions.json",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11199,
+    "headers_used": 3,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v2/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 4,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/v1/auctions",
+    "status_code": 403,
+    "content_type": "application/json",
+    "content_length": 42,
+    "headers_used": 4,
+    "response_preview": "{\"message\":\"Missing Authentication Token\"}"
+  },
+  {
+    "endpoint": "https://carsandbids.com/api/auctions",
+    "status_code": 400,
+    "content_type": "application/json",
+    "content_length": 17,
+    "headers_used": 4,
+    "response_preview": "{\"error_code\": 4}"
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v2/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v2/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x106749160>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 4
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/v1/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /v1/auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674a7b0>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 4
+  },
+  {
+    "endpoint": "https://api.carsandbids.com/auctions",
+    "status_code": "ERROR",
+    "error": "HTTPSConnectionPool(host='api.carsandbids.com', port=443): Max retries exceeded with url: /auctions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x10674bec0>: Failed to resolve 'api.carsandbids.com' ([Errno 8] nodename nor servname provided, or not known)\"))",
+    "headers_used": 4
+  },
+  {
+    "endpoint": "https://carsandbids.com/graphql",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11695,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/public/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11701,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11701,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/data/auctions.json",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11701,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11701,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/feed",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11701,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  },
+  {
+    "endpoint": "https://carsandbids.com/rss/auctions",
+    "status_code": 200,
+    "content_type": "text/html",
+    "content_length": 11701,
+    "headers_used": 4,
+    "response_preview": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no\"/><meta name=\"theme-color\" content=\"#ffff"
+  }
+]

@@ -292,6 +292,15 @@ class AutotraderClient:
         """Close the client and cleanup resources"""
         self._close_driver()
     
+    def __enter__(self):
+        """Context manager entry"""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - ensure cleanup"""
+        self.close()
+        return False
+    
     def __del__(self):
         """Cleanup on object destruction"""
         self.close()

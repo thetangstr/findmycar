@@ -1,8 +1,8 @@
-# CarGPT Production Deployment Guide
+# FindMyCar Production Deployment Guide
 
 ## Overview
 
-This guide covers deploying CarGPT to production with full scalability, monitoring, and reliability features including multi-source integration (CarMax, Bring a Trailer).
+This guide covers deploying FindMyCar to production with full scalability, monitoring, and reliability features including multi-source integration (eBay Motors API, CarMax, AutoTrader, Bring a Trailer, TrueCar, and CarGurus).
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ SECRET_KEY=your_very_long_random_secret_key
 EBAY_CLIENT_ID=your_ebay_client_id
 EBAY_CLIENT_SECRET=your_ebay_client_secret
 OPENAI_API_KEY=your_openai_api_key
-AUTO_DEV_API_KEY=your_autodev_api_key
+# AUTO_DEV_API_KEY=your_autodev_api_key  # Optional - not used in FindMyCar
 
 # Monitoring
 GRAFANA_PASSWORD=your_grafana_password
@@ -96,7 +96,7 @@ carmax_client = CarMaxClient(
 ```
 
 ### Monitoring CarMax
-- Check logs: `docker logs cargpt-worker`
+- Check logs: `docker logs findmycar-worker`
 - Monitor task status via API: `/api/task-status/{task_id}`
 - Track scraping success rate in Grafana
 
@@ -191,10 +191,10 @@ Redis caching includes:
 ### Database Backups
 ```bash
 # Manual backup
-docker exec cargpt-postgres pg_dump -U cargpt cargpt > backup.sql
+docker exec findmycar-postgres pg_dump -U findmycar findmycar > backup.sql
 
 # Automated backup (add to cron)
-0 2 * * * docker exec cargpt-postgres pg_dump -U cargpt cargpt | gzip > /backups/cargpt_$(date +%Y%m%d).sql.gz
+0 2 * * * docker exec findmycar-postgres pg_dump -U findmycar findmycar | gzip > /backups/findmycar_$(date +%Y%m%d).sql.gz
 ```
 
 ### Redis Persistence
@@ -207,10 +207,10 @@ Redis is configured with AOF persistence for data durability.
 **CarMax scraping fails:**
 ```bash
 # Check worker logs
-docker logs cargpt-worker
+docker logs findmycar-worker
 
 # Check Chrome installation
-docker exec cargpt-worker google-chrome --version
+docker exec findmycar-worker google-chrome --version
 
 # Restart worker if needed
 docker-compose -f docker-compose.prod.yml restart worker
@@ -223,10 +223,10 @@ docker-compose -f docker-compose.prod.yml restart worker
 **Database connection issues:**
 ```bash
 # Check PostgreSQL status
-docker logs cargpt-postgres
+docker logs findmycar-postgres
 
 # Test connection
-docker exec cargpt-postgres psql -U cargpt -c "SELECT 1"
+docker exec findmycar-postgres psql -U findmycar -c "SELECT 1"
 ```
 
 ### Performance Tuning
@@ -284,4 +284,4 @@ Regular checks:
 - Optimize Selenium usage to minimize memory consumption
 - Configure appropriate worker concurrency based on available resources
 
-This production setup provides a robust, scalable platform for CarGPT with comprehensive multi-source integration (CarMax, Bring a Trailer) and monitoring capabilities.
+This production setup provides a robust, scalable platform for FindMyCar with comprehensive multi-source integration (CarMax, Bring a Trailer) and monitoring capabilities.

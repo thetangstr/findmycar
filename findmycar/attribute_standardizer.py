@@ -5,7 +5,7 @@ Attribute standardization system for normalizing vehicle data across sources
 import re
 from typing import Dict, List, Any, Optional
 import logging
-from database_v2 import ATTRIBUTE_MAPPINGS, FEATURE_MAPPINGS
+from database_v2_sqlite import ATTRIBUTE_MAPPINGS, FEATURE_MAPPINGS
 
 logger = logging.getLogger(__name__)
 

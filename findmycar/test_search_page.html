@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Search</title>
+</head>
+<body>
+    <h1>Test Search Page</h1>
+    <button onclick="testSearch()">Test Search API</button>
+    <div id="results"></div>
+    
+    <script>
+        async function testSearch() {
+            console.log('Starting test search...');
+            
+            const params = new URLSearchParams({
+                query: 'honda',
+                page: 1,
+                per_page: 12,
+                sort_by: 'relevance',
+                include_live: true
+            });
+            
+            console.log('Request URL:', `/api/search/v2?${params}`);
+            
+            try {
+                const response = await fetch(`/api/search/v2?${params}`);
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                document.getElementById('results').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

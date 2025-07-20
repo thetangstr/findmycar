@@ -11,8 +11,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import JSONB
 
 from database_v2 import VehicleV2, SavedSearch, SearchHistory
-from nlp_search import NLPSearchParser
-from vehicle_attribute_inference import VehicleAttributeInference
+from nlp_search_wrapper import NLPSearchParser
+from vehicle_attribute_inference import VehicleAttributeInferencer as VehicleAttributeInference
 
 logger = logging.getLogger(__name__)
 

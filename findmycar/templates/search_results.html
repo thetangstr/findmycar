@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - FindMyCar</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+        
+        /* Header */
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+        
+        /* Search Bar */
+        .search-header {
+            background: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-input-group {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-input {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px 0 0 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .search-button:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* Filters */
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+        
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .filter-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .filter-range {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .filter-range input {
+            flex: 1;
+        }
+        
+        .apply-filters-btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .apply-filters-btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        .clear-filters-btn {
+            width: 100%;
+            background: white;
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-filters-btn:hover {
+            background: var(--bg-light);
+        }
+        
+        /* Results Info */
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .results-count {
+            font-size: 1.125rem;
+            color: var(--text-dark);
+        }
+        
+        .sort-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+        }
+        
+        /* Vehicle Cards */
+        .vehicle-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .vehicle-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .vehicle-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: var(--bg-light);
+        }
+        
+        .vehicle-details {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .vehicle-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        .vehicle-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        .vehicle-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .vehicle-meta {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .vehicle-source {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--bg-light);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .vehicle-action {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .vehicle-action:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        /* Loading State */
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        .no-results-icon {
+            font-size: 3rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+        
+        .pagination {
+            gap: 0.25rem;
+        }
+        
+        .page-link {
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .page-link:hover {
+            background: var(--bg-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .page-item.active .page-link {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .filter-section {
+                margin-bottom: 1rem;
+            }
+            
+            .results-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car"></i> FindMyCar
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Search Header -->
+    <div class="search-header">
+        <div class="container-fluid">
+            <form id="searchForm" class="search-input-group">
+                <div class="input-group">
+                    <input type="text" 
+                           id="searchInput" 
+                           class="form-control search-input" 
+                           placeholder="Search for your ideal car..."
+                           value="{{ query }}">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 col-md-4">
+                <div class="filter-section">
+                    <h3 class="filter-title">Filters</h3>
+                    
+                    <!-- Make Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">Make</label>
+                        <select id="makeFilter" class="filter-input">
+                            <option value="">All Makes</option>
+                            <option value="honda">Honda</option>
+                            <option value="toyota">Toyota</option>
+                            <option value="ford">Ford</option>
+                            <option value="chevrolet">Chevrolet</option>
+                            <option value="nissan">Nissan</option>
+                            <option value="bmw">BMW</option>
+                            <option value="mercedes-benz">Mercedes-Benz</option>
+                            <option value="audi">Audi</option>
+                            <option value="volkswagen">Volkswagen</option>
+                            <option value="mazda">Mazda</option>
+                            <option value="subaru">Subaru</option>
+                            <option value="hyundai">Hyundai</option>
+                            <option value="kia">Kia</option>
+                            <option value="tesla">Tesla</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Price Range -->
+                    <div class="filter-group">
+                        <label class="filter-label">Price Range</label>
+                        <div class="filter-range">
+                            <input type="number" id="priceMin" class="filter-input" placeholder="Min">
+                            <span>-</span>
+                            <input type="number" id="priceMax" class="filter-input" placeholder="Max">
+                        </div>
+                    </div>
+                    
+                    <!-- Year Range -->
+                    <div class="filter-group">
+                        <label class="filter-label">Year</label>
+                        <div class="filter-range">
+                            <input type="number" id="yearMin" class="filter-input" placeholder="Min" min="1990" max="2024">
+                            <span>-</span>
+                            <input type="number" id="yearMax" class="filter-input" placeholder="Max" min="1990" max="2024">
+                        </div>
+                    </div>
+                    
+                    <!-- Mileage -->
+                    <div class="filter-group">
+                        <label class="filter-label">Maximum Mileage</label>
+                        <input type="number" id="mileageMax" class="filter-input" placeholder="e.g., 50000">
+                    </div>
+                    
+                    <button id="applyFilters" class="apply-filters-btn">Apply Filters</button>
+                    <button id="clearFilters" class="clear-filters-btn">Clear All</button>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="col-lg-9 col-md-8">
+                <!-- Results Info -->
+                <div class="results-info">
+                    <div class="results-count">
+                        <span id="resultCount">0</span> vehicles found
+                        <span id="searchTime" class="text-muted" style="font-size: 0.875rem;"></span>
+                        <div id="sourceInfo" class="text-muted" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>
+                    </div>
+                    <div class="sort-dropdown">
+                        <label for="sortBy" class="text-muted" style="font-size: 0.875rem;">Sort by:</label>
+                        <select id="sortBy" class="sort-select">
+                            <option value="relevance">Relevance</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="year_desc">Year: Newest First</option>
+                            <option value="mileage_asc">Mileage: Low to High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Results Grid -->
+                <div id="resultsGrid" class="row g-4">
+                    <!-- Results will be displayed here -->
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-container" id="paginationContainer" style="display: none;">
+                    <nav>
+                        <ul class="pagination" id="pagination">
+                            <!-- Pagination will be generated dynamically -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentPage = 1;
+        let currentQuery = '';
+        let currentFilters = {};
+        let currentSort = 'relevance';
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
+            
+            // Get query from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentQuery = urlParams.get('q') || '';
+            console.log('Query from URL:', currentQuery);
+            
+            document.getElementById('searchInput').value = currentQuery;
+            
+            // Perform initial search if query exists
+            if (currentQuery) {
+                console.log('Performing initial search for:', currentQuery);
+                performSearch();
+            } else {
+                console.log('No query, showing empty state');
+                showNoResults('Enter a search query to find vehicles');
+            }
+            
+            // Event listeners
+            document.getElementById('searchForm').addEventListener('submit', handleSearch);
+            document.getElementById('applyFilters').addEventListener('click', applyFilters);
+            document.getElementById('clearFilters').addEventListener('click', clearFilters);
+            document.getElementById('sortBy').addEventListener('change', handleSort);
+        });
+        
+        // Handle search form submission
+        function handleSearch(e) {
+            e.preventDefault();
+            currentQuery = document.getElementById('searchInput').value.trim();
+            currentPage = 1;
+            
+            if (currentQuery) {
+                // Update URL
+                window.history.pushState({}, '', `?q=${encodeURIComponent(currentQuery)}`);
+                performSearch();
+            }
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            currentFilters = {
+                make: document.getElementById('makeFilter').value,
+                price_min: document.getElementById('priceMin').value,
+                price_max: document.getElementById('priceMax').value,
+                year_min: document.getElementById('yearMin').value,
+                year_max: document.getElementById('yearMax').value,
+                mileage_max: document.getElementById('mileageMax').value
+            };
+            
+            // Remove empty values
+            Object.keys(currentFilters).forEach(key => {
+                if (!currentFilters[key]) delete currentFilters[key];
+            });
+            
+            currentPage = 1;
+            performSearch();
+        }
+        
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('makeFilter').value = '';
+            document.getElementById('priceMin').value = '';
+            document.getElementById('priceMax').value = '';
+            document.getElementById('yearMin').value = '';
+            document.getElementById('yearMax').value = '';
+            document.getElementById('mileageMax').value = '';
+            
+            currentFilters = {};
+            currentPage = 1;
+            performSearch();
+        }
+        
+        // Handle sort change
+        function handleSort() {
+            currentSort = document.getElementById('sortBy').value;
+            performSearch();
+        }
+        
+        // Perform search
+        async function performSearch() {
+            showLoading();
+            
+            try {
+                // Build query string
+                const params = new URLSearchParams({
+                    query: currentQuery,
+                    page: currentPage,
+                    per_page: 12,
+                    sort_by: currentSort,
+                    include_live: true,
+                    ...currentFilters
+                });
+                
+                const response = await fetch(`/api/search/v2?${params}`);
+                const data = await response.json();
+                
+                console.log('Search response:', data);
+                
+                hideLoading();
+                
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    console.error('Search failed:', data);
+                    showNoResults('An error occurred while searching');
+                }
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                hideLoading();
+                showNoResults('An error occurred while searching');
+            }
+        }
+        
+        // Display search results
+        function displayResults(data) {
+            console.log('Displaying results:', data);
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            // Update result count and search time
+            document.getElementById('resultCount').textContent = data.total || 0;
+            if (data.search_time) {
+                document.getElementById('searchTime').textContent = `(${data.search_time.toFixed(1)}s)`;
+            }
+            
+            // Display source information
+            const sourceInfo = document.getElementById('sourceInfo');
+            if (data.sources_searched && data.sources_searched.length > 0) {
+                const sourceNames = data.sources_searched.map(s => {
+                    // Capitalize source names
+                    return s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ');
+                }).join(', ');
+                sourceInfo.innerHTML = `Sources: ${sourceNames}`;
+                
+                if (data.sources_failed && data.sources_failed.length > 0) {
+                    sourceInfo.innerHTML += ` <span style="color: #dc3545;">(${data.sources_failed.length} failed)</span>`;
+                }
+            } else {
+                sourceInfo.innerHTML = '';
+            }
+            
+            if (!data.vehicles || data.vehicles.length === 0) {
+                console.log('No vehicles in data');
+                showNoResults('No vehicles found matching your criteria');
+                return;
+            }
+            
+            // Clear grid and display vehicles
+            resultsGrid.innerHTML = '';
+            
+            console.log(`Creating cards for ${data.vehicles.length} vehicles`);
+            
+            data.vehicles.forEach((vehicle, index) => {
+                try {
+                    const card = createVehicleCard(vehicle);
+                    resultsGrid.appendChild(card);
+                } catch (error) {
+                    console.error(`Error creating card for vehicle ${index}:`, error, vehicle);
+                }
+            });
+            
+            // Update pagination
+            updatePagination(data.page, data.pages);
+        }
+        
+        // Create vehicle card
+        function createVehicleCard(vehicle) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6';
+            
+            const imageUrl = vehicle.image_urls && vehicle.image_urls.length > 0 
+                ? vehicle.image_urls[0] 
+                : 'https://via.placeholder.com/400x300?text=No+Image';
+            
+            const title = vehicle.title || `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+            const price = vehicle.price ? `$${vehicle.price.toLocaleString()}` : 'Contact for price';
+            const mileage = vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : 'N/A';
+            const location = vehicle.location || 'Location not specified';
+            
+            col.innerHTML = `
+                <div class="vehicle-card">
+                    <img src="${imageUrl}" alt="${title}" class="vehicle-image" 
+                         onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                    <div class="vehicle-details">
+                        <h3 class="vehicle-title">${title}</h3>
+                        <div class="vehicle-price">${price}</div>
+                        <div class="vehicle-specs">
+                            <div class="spec-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>${vehicle.year || 'N/A'}</span>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>${mileage}</span>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${location}</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-meta">
+                            <span class="vehicle-source">${vehicle.source}</span>
+                            <a href="${vehicle.view_item_url || '#'}" target="_blank" class="vehicle-action">
+                                View Details <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+        
+        // Update pagination
+        function updatePagination(currentPage, totalPages) {
+            const paginationContainer = document.getElementById('paginationContainer');
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+            
+            paginationContainer.style.display = 'block';
+            pagination.innerHTML = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="goToPage(${currentPage - 1})">Previous</a>
+                    </li>
+                `;
+            }
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === currentPage ? 'active' : '';
+                pagination.innerHTML += `
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="goToPage(${currentPage + 1})">Next</a>
+                    </li>
+                `;
+            }
+        }
+        
+        // Go to page
+        function goToPage(page) {
+            currentPage = page;
+            performSearch();
+            window.scrollTo(0, 0);
+        }
+        
+        // Show loading state
+        function showLoading() {
+            // Clear any existing content
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = `
+                <div class="col-12 loading-spinner">
+                    <div class="spinner"></div>
+                    <p class="text-muted mt-3">Searching vehicles...</p>
+                </div>
+            `;
+            document.getElementById('paginationContainer').style.display = 'none';
+            
+            // Clear result count
+            document.getElementById('resultCount').textContent = '0';
+            document.getElementById('searchTime').textContent = '';
+        }
+        
+        // Hide loading state
+        function hideLoading() {
+            const loadingElement = document.querySelector('.loading-spinner');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
+        
+        // Show no results message
+        function showNoResults(message) {
+            // Make sure to hide loading first
+            hideLoading();
+            
+            document.getElementById('resultsGrid').innerHTML = `
+                <div class="col-12">
+                    <div class="no-results">
+                        <div class="no-results-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <h3>${message}</h3>
+                        <p class="text-muted">Try adjusting your search criteria or filters</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('paginationContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

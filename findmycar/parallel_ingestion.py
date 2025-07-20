@@ -199,7 +199,7 @@ def ingest_multi_source_parallel(db: Session, query: str, filters=None, sources=
     """
     from ingestion import (
         ingest_data, ingest_carmax_data, ingest_bat_data,
-        ingest_cargurus_data, ingest_autotrader_data
+        ingest_cargurus_data, ingest_autotrader_data, ingest_truecar_data
     )
     
     if not sources:
@@ -210,8 +210,10 @@ def ingest_multi_source_parallel(db: Session, query: str, filters=None, sources=
         'ebay': ingest_data,
         'carmax': ingest_carmax_data,
         'bringatrailer': ingest_bat_data,
+        'bat': ingest_bat_data,  # Allow both names
         'cargurus': ingest_cargurus_data,
-        'autotrader': ingest_autotrader_data
+        'autotrader': ingest_autotrader_data,
+        'truecar': ingest_truecar_data
     }
     
     # Build source configurations

@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String, JSON, DateTime, Float, Text, Index
+from sqlalchemy import create_engine, Column, Integer, String, JSON, DateTime, Float, Text, Index, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 import datetime
 import os
 import hashlib
@@ -159,10 +159,71 @@ class SavedSearch(Base):
     def is_alerts_enabled(self):
         return self.alerts_enabled == 'true'
 
+# User Management Models
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    uid = Column(String, unique=True, index=True)  # Firebase UID
+    email = Column(String, unique=True, index=True)
+    display_name = Column(String)
+    photo_url = Column(String)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_login = Column(DateTime, default=datetime.datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    searches = relationship("UserSearch", back_populates="user", cascade="all, delete-orphan")
+    saved_vehicles = relationship("SavedVehicle", back_populates="user", cascade="all, delete-orphan")
+    preferences = relationship("UserPreference", back_populates="user", cascade="all, delete-orphan")
+
+class UserSearch(Base):
+    __tablename__ = "user_searches"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    query = Column(String)
+    filters = Column(JSON)  # Store search filters
+    results_count = Column(Integer)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    # Relationship
+    user = relationship("User", back_populates="searches")
+
+class SavedVehicle(Base):
+    __tablename__ = "saved_vehicles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"))
+    notes = Column(Text)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="saved_vehicles")
+    vehicle = relationship("Vehicle")
+
+class UserPreference(Base):
+    __tablename__ = "user_preferences"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    preference_key = Column(String)
+    preference_value = Column(JSON)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    # Relationship
+    user = relationship("User", back_populates="preferences")
+
 # Create indexes for performance
 Index('idx_search_cache_expires', SearchCache.expires_at)
 Index('idx_search_cache_accessed', SearchCache.last_accessed)
 Index('idx_query_analytics_count', QueryAnalytics.search_count.desc())
+Index('idx_user_uid', User.uid)
+Index('idx_user_email', User.email)
+Index('idx_user_search_created', UserSearch.created_at.desc())
+Index('idx_saved_vehicle_user', SavedVehicle.user_id)
 
 def get_db():
     db = SessionLocal()

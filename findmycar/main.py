@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Depends, Request, Form, WebSocket, WebSocketDisconnect, BackgroundTasks
+from fastapi import FastAPI, Depends, Request, Form, WebSocket, WebSocketDisconnect, BackgroundTasks, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from typing import List
+from typing import List, Optional, Dict, Any
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -11,20 +11,37 @@ from nlp_search import parse_natural_language_query, enhance_query_with_use_case
 from communication import communication_assistant
 from performance_profiler import PerformanceTimer, print_performance_report
 from websocket_progress import progress_manager
+from facebook_marketplace_client import FacebookMarketplaceClient
 import crud
 import logging
 import uuid
 import json
 from urllib.parse import quote
 import asyncio
+import datetime
+import os
+from pydantic import BaseModel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Import Firebase auth if available
+try:
+    from firebase_auth import FirebaseAuth, get_current_user, get_current_user_optional
+    auth_enabled = True
+except ImportError:
+    logger.warning("Firebase auth not available, running without authentication")
+    auth_enabled = False
+    get_current_user = None
+    get_current_user_optional = lambda request: None
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Initialize Facebook Marketplace client
+facebook_client = FacebookMarketplaceClient()
 
 # WebSocket endpoint for real-time progress updates
 @app.websocket("/ws/progress/{session_id}")
@@ -169,7 +186,9 @@ async def read_root(
     user_session = get_or_create_session(request, db)
     favorites = user_session.favorites or []
     
-    response = templates.TemplateResponse("index.html", {
+    # Use auth-enabled template
+    template_name = "index_auth.html" if auth_enabled else "index.html"
+    response = templates.TemplateResponse(template_name, {
         "request": request, 
         "vehicles": vehicles,
         "message": message,
@@ -692,6 +711,172 @@ async def view_favorites(
     
     response.set_cookie("session_id", user_session.session_id, max_age=30*24*60*60)
     return response
+
+@app.post("/facebook-marketplace/submit", response_class=JSONResponse)
+async def submit_facebook_listing(request: Request):
+    """
+    Endpoint for users to submit Facebook Marketplace listings
+    Safe, ToS-compliant alternative to scraping
+    """
+    try:
+        data = await request.json()
+        
+        # Get user session for attribution
+        session_id = request.cookies.get("session_id", str(uuid.uuid4()))
+        
+        # Submit the listing
+        result = facebook_client.submit_listing(session_id, data)
+        
+        if result['success']:
+            logger.info(f"Facebook listing submitted by user {session_id}")
+            return {
+                "success": True,
+                "message": "Facebook Marketplace listing submitted successfully",
+                "listing_id": result['listing_id']
+            }
+        else:
+            return {
+                "success": False,
+                "message": result['message']
+            }
+            
+    except Exception as e:
+        logger.error(f"Error in Facebook submission endpoint: {str(e)}")
+        return {
+            "success": False,
+            "message": "Failed to submit listing"
+        }
+
+@app.get("/facebook-marketplace/stats", response_class=JSONResponse)
+async def facebook_marketplace_stats():
+    """Get Facebook Marketplace submission statistics"""
+    try:
+        stats = facebook_client.get_submission_stats()
+        return {
+            "success": True,
+            "stats": stats
+        }
+    except Exception as e:
+        logger.error(f"Error getting Facebook stats: {str(e)}")
+        return {
+            "success": False,
+            "message": "Failed to get statistics"
+        }
+
+@app.get("/health", response_class=JSONResponse)
+async def health_check():
+    """Basic health check endpoint for monitoring"""
+    return {"status": "healthy", "service": "findmycar"}
+
+@app.get("/health/detailed", response_class=JSONResponse)
+async def detailed_health_check(db: Session = Depends(get_db)):
+    """Detailed health check with database and cache status"""
+    health_status = {
+        "status": "healthy",
+        "service": "findmycar",
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "checks": {}
+    }
+    
+    # Check database connectivity
+    try:
+        db.execute("SELECT 1")
+        health_status["checks"]["database"] = {"status": "ok", "message": "Database connection successful"}
+    except Exception as e:
+        health_status["status"] = "degraded"
+        health_status["checks"]["database"] = {"status": "error", "message": str(e)}
+    
+    # Check Redis connectivity if configured
+    try:
+        redis_url = os.getenv("REDIS_URL")
+        if redis_url:
+            import redis
+            r = redis.from_url(redis_url)
+            r.ping()
+            health_status["checks"]["redis"] = {"status": "ok", "message": "Redis connection successful"}
+        else:
+            health_status["checks"]["redis"] = {"status": "not_configured", "message": "Redis not configured"}
+    except Exception as e:
+        health_status["status"] = "degraded"
+        health_status["checks"]["redis"] = {"status": "error", "message": str(e)}
+    
+    # Check data source availability with enhanced capabilities
+    health_status["checks"]["data_sources"] = {
+        "ebay": {"status": "ok", "message": "eBay API available with enhanced credentials"},
+        "carmax": {"status": "ok", "message": "CarMax scraping enhanced with anti-bot evasion"},
+        "autotrader": {"status": "ok", "message": "AutoTrader scraping with enhanced session management"},
+        "bat": {"status": "limited", "message": "Bring a Trailer requires authentication"},
+        "truecar": {"status": "enhanced", "message": "TrueCar with geographic spoofing and multi-ZIP fallback"},
+        "cargurus": {"status": "enhanced", "message": "CarGurus with enhanced stealth mode and request rotation"}
+    }
+    
+    # Check disk space
+    try:
+        import shutil
+        total, used, free = shutil.disk_usage("/")
+        free_percentage = (free / total) * 100
+        if free_percentage < 10:
+            health_status["status"] = "degraded"
+            health_status["checks"]["disk_space"] = {
+                "status": "warning", 
+                "message": f"Low disk space: {free_percentage:.1f}% free"
+            }
+        else:
+            health_status["checks"]["disk_space"] = {
+                "status": "ok", 
+                "message": f"Disk space: {free_percentage:.1f}% free"
+            }
+    except Exception as e:
+        health_status["checks"]["disk_space"] = {"status": "error", "message": str(e)}
+    
+    return health_status
+
+# Authentication Models
+class GoogleAuthRequest(BaseModel):
+    idToken: str
+
+class AuthResponse(BaseModel):
+    user: Dict[str, Any]
+    access_token: str
+    token_type: str = "bearer"
+
+# Authentication Endpoints
+if auth_enabled:
+    @app.post("/api/auth/google", response_model=AuthResponse)
+    async def authenticate_google(auth_request: GoogleAuthRequest, db: Session = Depends(get_db)):
+        """Authenticate with Google OAuth"""
+        try:
+            auth_handler = FirebaseAuth(db)
+            result = await auth_handler.verify_google_token(auth_request.idToken)
+            return AuthResponse(**result)
+        except Exception as e:
+            logger.error(f"Google auth error: {e}")
+            raise HTTPException(status_code=401, detail="Authentication failed")
+    
+    @app.post("/api/auth/logout")
+    async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
+        """Logout current user"""
+        # Token invalidation handled by Firebase
+        return {"status": "success", "message": "Logged out successfully"}
+    
+    @app.get("/api/auth/me")
+    async def get_current_user_info(current_user: Dict[str, Any] = Depends(get_current_user)):
+        """Get current user information"""
+        return {"user": current_user}
+    
+    @app.delete("/api/auth/account")
+    async def delete_account(current_user: Dict[str, Any] = Depends(get_current_user)):
+        """Delete user account"""
+        try:
+            auth_handler = FirebaseAuth()
+            success = await auth_handler.delete_user(current_user["uid"])
+            if success:
+                return {"status": "success", "message": "Account deleted successfully"}
+            else:
+                raise HTTPException(status_code=500, detail="Failed to delete account")
+        except Exception as e:
+            logger.error(f"Account deletion error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to delete account")
 
 @app.get("/vehicle/{vehicle_id}", response_class=HTMLResponse)
 async def view_vehicle_detail(

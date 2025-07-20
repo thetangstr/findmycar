@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-07-19T20:44:12.330179",
+  "overall_status": "healthy",
+  "alerts": [],
+  "environment": {
+    "ebay_configured": true,
+    "database_configured": true,
+    "secret_key_configured": true,
+    "redis_available": false
+  },
+  "sources": {
+    "timestamp": "2025-07-19T20:44:11.656357",
+    "sources": {
+      "ebay": {
+        "status": "healthy",
+        "vehicles": 16,
+        "response_time": 0.4422597885131836,
+        "success": true,
+        "last_check": "2025-07-19T20:43:21.638432"
+      },
+      "carmax": {
+        "status": "healthy",
+        "vehicles": 22,
+        "response_time": 21.89101529121399,
+        "success": true,
+        "last_check": "2025-07-19T20:43:43.529466"
+      },
+      "autotrader": {
+        "status": "healthy",
+        "vehicles": 25,
+        "response_time": 28.12685799598694,
+        "success": true,
+        "last_check": "2025-07-19T20:44:11.656337"
+      }
+    },
+    "summary": {
+      "total_vehicles": 63,
+      "working_sources": 3,
+      "total_sources": 3,
+      "success_rate": 1.0,
+      "overall_status": "healthy"
+    }
+  },
+  "search_performance": {
+    "timestamp": "2025-07-19T20:44:12.330111",
+    "total_vehicles": 63,
+    "search_time": 0.4876830577850342,
+    "sources_succeeded": 3,
+    "sources_failed": 0,
+    "distribution": {
+      "carmax": 15
+    },
+    "performance_score": 99.8,
+    "status": "healthy"
+  },
+  "performance_score": 99.8,
+  "uptime_info": {
+    "check_duration": "single_check",
+    "next_check": "2025-07-19T20:49:12.330183"
+  }
+}

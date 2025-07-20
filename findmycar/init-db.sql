@@ -1,10 +1,10 @@
--- Initialize AutoNavigator database with proper indexes and constraints
+-- Initialize FindMyCar database with proper indexes and constraints
 
 -- Create database (will be created by docker-compose, but included for reference)
--- CREATE DATABASE autonavigator;
+-- CREATE DATABASE findmycar;
 
 -- Ensure we're using the right database
-\c autonavigator;
+\c findmycar;
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_vehicles_source ON vehicles(source);
@@ -76,5 +76,5 @@ GROUP BY DATE(created_at), source
 ORDER BY date DESC, source;
 
 -- Grant permissions (adjust as needed for your setup)
--- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO autonavigator;
--- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO autonavigator;
+-- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO findmycar;
+-- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO findmycar;

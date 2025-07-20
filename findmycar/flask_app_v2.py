@@ -11,10 +11,10 @@ from flask_cors import CORS
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_v2 import get_database_url, init_db
-from comprehensive_search_engine import ComprehensiveSearchEngine
+from database_v2_sqlite import get_database_url, init_db
+from comprehensive_search_engine_sqlite import ComprehensiveSearchEngine
 from ebay_enhanced_extractor import EbayEnhancedExtractor
-from ebay_client import EbayClient
+# from ebay_client import EbayClient  # Not needed for now
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,12 +28,13 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 CORS(app, origins=['http://localhost:*', 'http://127.0.0.1:*'])
 
 # Database setup
-engine = init_db()
+from database_v2_sqlite import get_engine
+engine = get_engine()
 SessionLocal = sessionmaker(bind=engine)
 
 # Initialize components
 ebay_extractor = EbayEnhancedExtractor()
-ebay_client = EbayClient()
+# ebay_client = EbayClient()  # Not needed for now
 
 
 @app.route('/')
@@ -321,55 +322,61 @@ def run_saved_search(search_id):
 @app.route('/api/ingest/ebay/<listing_id>', methods=['POST'])
 def ingest_ebay_listing(listing_id):
     """Ingest a single eBay listing with enhanced extraction"""
-    db = SessionLocal()
-    try:
-        # Fetch from eBay API
-        ebay_item = ebay_client.get_item(listing_id)
-        if not ebay_item:
-            return jsonify({
-                'success': False,
-                'error': 'Item not found'
-            }), 404
-        
-        # Extract with enhanced extractor
-        extracted_data = ebay_extractor.extract_all_data(ebay_item)
-        
-        # Save to database
-        from database_v2 import VehicleV2
-        
-        # Check if already exists
-        existing = db.query(VehicleV2).filter_by(
-            listing_id=extracted_data['listing_id']
-        ).first()
-        
-        if existing:
-            # Update existing
-            for key, value in extracted_data.items():
-                if hasattr(existing, key):
-                    setattr(existing, key, value)
-            existing.updated_at = datetime.utcnow()
-        else:
-            # Create new
-            vehicle = VehicleV2(**extracted_data)
-            db.add(vehicle)
-        
-        db.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Vehicle ingested successfully',
-            'vehicle_id': extracted_data['listing_id']
-        })
-        
-    except Exception as e:
-        logger.error(f"Ingestion error: {e}")
-        db.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        db.close()
+    return jsonify({
+        'success': False,
+        'error': 'eBay ingestion temporarily disabled'
+    }), 503
+    
+    # TODO: Re-enable when ebay_client is properly set up
+    # db = SessionLocal()
+    # try:
+    #     # Fetch from eBay API
+    #     ebay_item = ebay_client.get_item(listing_id)
+    #     if not ebay_item:
+    #         return jsonify({
+    #             'success': False,
+    #             'error': 'Item not found'
+    #         }), 404
+    #     
+    #     # Extract with enhanced extractor
+    #     extracted_data = ebay_extractor.extract_all_data(ebay_item)
+    #     
+    #     # Save to database
+    #     from database_v2_sqlite import VehicleV2
+    #     
+    #     # Check if already exists
+    #     existing = db.query(VehicleV2).filter_by(
+    #         listing_id=extracted_data['listing_id']
+    #     ).first()
+    #     
+    #     if existing:
+    #         # Update existing
+    #         for key, value in extracted_data.items():
+    #             if hasattr(existing, key):
+    #                 setattr(existing, key, value)
+    #         existing.updated_at = datetime.utcnow()
+    #     else:
+    #         # Create new
+    #         vehicle = VehicleV2(**extracted_data)
+    #         db.add(vehicle)
+    #     
+    #     db.commit()
+    #     
+    #     return jsonify({
+    #         'success': True,
+    #         'message': 'Vehicle ingested successfully',
+    #         'vehicle_id': extracted_data['listing_id']
+    #     })
+    #     
+    # except Exception as e:
+    #     logger.error(f"Ingestion error: {e}")
+    #     db.rollback()
+    #     return jsonify({
+    #         'success': False,
+    #         'error': str(e)
+    #     }), 500
+    # finally:
+    #     db.close()
 
 
 @app.route('/api/vehicle/<int:vehicle_id>')
@@ -377,7 +384,7 @@ def get_vehicle_details(vehicle_id):
     """Get detailed vehicle information"""
     db = SessionLocal()
     try:
-        from database_v2 import VehicleV2
+        from database_v2_sqlite import VehicleV2
         
         vehicle = db.query(VehicleV2).filter_by(id=vehicle_id).first()
         if not vehicle:
@@ -440,6 +447,48 @@ def health_check():
         'service': 'findmycar-v2',
         'timestamp': datetime.utcnow().isoformat()
     })
+
+
+@app.route('/api/debug/db')
+def debug_db():
+    """Debug database connection"""
+    db = SessionLocal()
+    try:
+        from database_v2_sqlite import VehicleV2
+        from sqlalchemy import text
+        
+        # Test raw query
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT COUNT(*) FROM vehicles_v2"))
+            raw_count = result.scalar()
+        
+        # Test ORM
+        orm_count = db.query(VehicleV2).count()
+        active_count = db.query(VehicleV2).filter(VehicleV2.is_active == True).count()
+        honda_count = db.query(VehicleV2).filter(VehicleV2.make == 'Honda').count()
+        
+        # Get sample vehicles
+        vehicles = db.query(VehicleV2).limit(3).all()
+        
+        return jsonify({
+            'raw_count': raw_count,
+            'orm_count': orm_count,
+            'active_count': active_count,
+            'honda_count': honda_count,
+            'sample_vehicles': [
+                {
+                    'id': v.id,
+                    'make': v.make,
+                    'model': v.model,
+                    'year': v.year,
+                    'is_active': v.is_active
+                } for v in vehicles
+            ],
+            'db_url': str(engine.url),
+            'db_file': engine.url.database if hasattr(engine.url, 'database') else None
+        })
+    finally:
+        db.close()
 
 
 if __name__ == '__main__':
