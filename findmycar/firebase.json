@@ -1,0 +1,71 @@
+{
+  "hosting": {
+    "public": "static",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "findmycar-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/health",
+        "run": {
+          "serviceId": "findmycar-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/docs",
+        "run": {
+          "serviceId": "findmycar-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/search",
+        "run": {
+          "serviceId": "findmycar-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "findmycar-api",
+          "region": "us-central1"
+        }
+      }
+    ],
+    "headers": [
+      {
+        "source": "/api/**",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          {
+            "key": "Access-Control-Allow-Methods",
+            "value": "GET, POST, PUT, DELETE, OPTIONS"
+          },
+          {
+            "key": "Access-Control-Allow-Headers",
+            "value": "Content-Type, Authorization"
+          }
+        ]
+      }
+    ]
+  },
+  "functions": {
+    "predeploy": [
+      "echo 'No functions to deploy'"
+    ]
+  }
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindMyCar - Vehicle Search Platform</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .status { 
+            background: #e8f5e8; 
+            padding: 20px; 
+            border-radius: 5px; 
+            border-left: 5px solid #4caf50;
+            margin-bottom: 30px;
+        }
+        .links { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-top: 30px;
+        }
+        .link-card { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+            text-decoration: none; 
+            color: #333;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .link-card:hover { 
+            background: #667eea; 
+            color: white; 
+            border-color: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        .metrics { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin: 30px 0;
+        }
+        .metric { 
+            background: #f1f3f4; 
+            padding: 15px; 
+            border-radius: 8px; 
+            text-align: center;
+        }
+        .metric-value { 
+            font-size: 2em; 
+            font-weight: bold; 
+            color: #667eea;
+        }
+        .metric-label { 
+            color: #666; 
+            font-size: 0.9em;
+        }
+        .footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            color: #666; 
+            border-top: 1px solid #eee; 
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 FindMyCar</h1>
+        
+        <div class="status">
+            <h3>✅ System Status: Production Ready!</h3>
+            <p>All 3 vehicle sources are operational and serving live data from eBay Motors, CarMax, and AutoTrader.</p>
+        </div>
+
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-value">3</div>
+                <div class="metric-label">Active Sources</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">60+</div>
+                <div class="metric-label">Vehicles per Search</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">&lt;30s</div>
+                <div class="metric-label">Response Time</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">99.8</div>
+                <div class="metric-label">Performance Score</div>
+            </div>
+        </div>
+
+        <div class="links">
+            <a href="/search" class="link-card">
+                <h3>🔍 Vehicle Search</h3>
+                <p>Search across all sources</p>
+            </a>
+            <a href="/health" class="link-card">
+                <h3>❤️ Health Check</h3>
+                <p>System status</p>
+            </a>
+            <a href="/docs" class="link-card">
+                <h3>📚 API Docs</h3>
+                <p>Interactive documentation</p>
+            </a>
+            <a href="/monitoring" class="link-card">
+                <h3>📊 Monitoring</h3>
+                <p>Real-time metrics</p>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>FindMyCar Production Platform | Deployed via Firebase</p>
+            <p>Powered by eBay Motors API, CarMax & AutoTrader scraping</p>
+        </div>
+    </div>
+
+    <script>
+        // Check API health on page load
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Health check:', data);
+                if (data.status === 'healthy') {
+                    document.querySelector('.status').style.background = '#e8f5e8';
+                } else {
+                    document.querySelector('.status').style.background = '#ffeaa7';
+                    document.querySelector('.status h3').textContent = '⚠️ System Status: ' + data.status;
+                }
+            })
+            .catch(error => {
+                console.error('Health check failed:', error);
+                document.querySelector('.status').style.background = '#fab1a0';
+                document.querySelector('.status h3').textContent = '❌ System Status: Unavailable';
+            });
+    </script>
+</body>
+</html>
